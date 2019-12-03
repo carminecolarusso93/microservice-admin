@@ -1,0 +1,9 @@
+<neo4j>
+    <ip>172.18.10.141</ip>
+
+
+    <port>32000</port>
+    
+
+    <user>neo4j</user>
+    <password>password</password></neo4j>
