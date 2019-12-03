@@ -19,9 +19,8 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.Value;
 
-import dataModel.Coordinate;
-import dataModel.Intersection;
-import dataModel.Street;
+import data.dataModel.*;
+
 
 
 public class DriverDatabaseNeo4j implements DriverDatabase {

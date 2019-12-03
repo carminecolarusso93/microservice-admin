@@ -2,7 +2,7 @@ package data.dataModel;
 
 import java.util.HashMap;
 
-import dataModel.Street;
+
 
 public class Intersection {
 
