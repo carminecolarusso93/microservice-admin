@@ -18,7 +18,7 @@ import util.ServerUtilities;
  */
 @Stateless
 @LocalBean
-public class TestEJB implements TestEJBRemote, TestEJBLocal {
+public class TestEJBAdmin implements TestEJBRemoteAdmin, TestEJBLocalAdmin {
 
 	DriverDatabase driverDatabase;
 	protected String databeseURI = null;
@@ -27,7 +27,7 @@ public class TestEJB implements TestEJBRemote, TestEJBLocal {
     /**
      * Default constructor. 
      */
-    public TestEJB() {
+    public TestEJBAdmin() {
 		try {
 			ServerUtilities serverUtilities = new ServerUtilities();
 			this.databeseURI = serverUtilities.getDatabaseUri();

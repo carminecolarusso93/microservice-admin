@@ -15,10 +15,12 @@ public class Street {
 	private String maxSpeed, name;
 	private boolean oneWay;
 	private ArrayList<Long> osmidEdges;
-	private String ref, service, tunnel, width;
-	private int origId;
+	private String ref, tunnel, width;
+	private boolean transportService;
+	private long origId;
 	private double weight;
 	private double flow, averageTravelTime;
+	private boolean interrupted;
 
 	/**
 	 * 
@@ -51,8 +53,8 @@ public class Street {
 	 */
 	public Street(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge, long osmidStart,
 			long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double lenght,
-			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, String service,
-			String tunnel, String width, int origId, double weight, double flow, double averageTravelTime) {
+			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
+			String tunnel, String width, long origId, double weight, double flow, double averageTravelTime, boolean interrupted) {
 		super();
 		this.coordinates = coordinates;
 		this.id = id;
@@ -71,13 +73,14 @@ public class Street {
 		this.oneWay = oneWay;
 		this.osmidEdges = osmidEdges;
 		this.ref = ref;
-		this.service = service;
+		this.transportService = transportService;
 		this.tunnel = tunnel;
 		this.width = width;
 		this.origId = origId;
 		this.weight = weight;
 		this.flow = flow;
 		this.averageTravelTime = averageTravelTime;
+		this.interrupted=interrupted;
 	}
 
 	/**
@@ -112,8 +115,8 @@ public class Street {
 	 */
 	public Street(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge, long osmidStart,
 			long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double lenght,
-			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, String service,
-			String tunnel, String width, int origId, double flow, double averageTravelTime) {
+			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
+			String tunnel, String width, long origId, double flow, double averageTravelTime,boolean interrupted) {
 		super();
 		this.coordinates = coordinates;
 		this.id = id;
@@ -132,13 +135,14 @@ public class Street {
 		this.oneWay = oneWay;
 		this.osmidEdges = osmidEdges;
 		this.ref = ref;
-		this.service = service;
+		this.transportService = transportService;
 		this.tunnel = tunnel;
 		this.width = width;
 		this.origId = origId;
 		this.weight = 0;
 		this.flow = flow;
 		this.averageTravelTime = averageTravelTime;
+		this.interrupted=interrupted;
 	}
 
 	public ArrayList<Coordinate> getCoordinates() {
@@ -277,12 +281,12 @@ public class Street {
 		this.ref = ref;
 	}
 
-	public String getService() {
-		return service;
+	public boolean isTransportService() {
+		return transportService;
 	}
 
-	public void setService(String service) {
-		this.service = service;
+	public void setTransportService(boolean transportService) {
+		this.transportService = transportService;
 	}
 
 	public String getTunnel() {
@@ -301,11 +305,11 @@ public class Street {
 		this.width = width;
 	}
 
-	public int getOrigId() {
+	public long getOrigId() {
 		return origId;
 	}
 
-	public void setOrigId(int origId) {
+	public void setOrigId(long origId) {
 		this.origId = origId;
 	}
 
@@ -333,15 +337,23 @@ public class Street {
 		this.averageTravelTime = averageTravelTime;
 	}
 
+	public boolean isInterrupted() {
+		return interrupted;
+	}
+
+	public void setInterrupted(boolean interrupted) {
+		this.interrupted = interrupted;
+	}
+
 	@Override
 	public String toString() {
 		return "Street [coordinates=" + coordinates + ", id=" + id + ", access=" + access + ", area=" + area
 				+ ", bridge=" + bridge + ", osmidStart=" + osmidStart + ", osmidDest=" + osmidDest + ", highway="
 				+ highway + ", junction=" + junction + ", key=" + key + ", arrayLanes=" + arrayLanes + ", lenght="
 				+ lenght + ", maxSpeed=" + maxSpeed + ", name=" + name + ", oneWay=" + oneWay + ", osmidEdges="
-				+ osmidEdges + ", ref=" + ref + ", service=" + service + ", tunnel=" + tunnel + ", width=" + width
-				+ ", origId=" + origId + ", weight=" + weight + ", flow=" + flow + ", averageTravelTime="
-				+ averageTravelTime + "]";
+				+ osmidEdges + ", ref=" + ref + ", tunnel=" + tunnel + ", width=" + width + ", transportService="
+				+ transportService + ", origId=" + origId + ", weight=" + weight + ", flow=" + flow
+				+ ", averageTravelTime=" + averageTravelTime + ", interrupted=" + interrupted + "]";
 	}
 
 }

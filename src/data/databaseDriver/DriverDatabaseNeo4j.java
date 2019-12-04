@@ -18,14 +18,11 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.exceptions.NoSuchRecordException;
 
 import data.dataModel.*;
 
-
-
 public class DriverDatabaseNeo4j implements DriverDatabase {
-	public static final String JBOSS_SERVER_DATA_DIR = "jboss.server.data.dir";
-	public static final String CONF_FILE_NAME = "database.conf";
 
 	private String uri, user, password;
 	private Driver driver;
@@ -44,37 +41,33 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		logger = Logger.getLogger(DriverDatabaseNeo4j.class);
 	}
 
-	//TODO versione da environmet variable
-//public DriverDatabaseNeo4j() throws FileNotFoundException {
-//
-//      String ip = System.getenv("ip");
-//      String port = System.getenv("port");
-//      uri = "bolt://" + ip + ":" + port;
-//      user = System.getenv("user");
-//      password = System.getenv("pass");
-//      logger = Logger.getLogger(DriverDatabaseNeo4j.class);
-//  }
+	public DriverDatabaseNeo4j() throws FileNotFoundException {
+		File f = new File("database.conf");
+		// System.out.println("path: "+new File("").getAbsolutePath());
+		if (f.exists()) {
 
-	 public DriverDatabaseNeo4j() throws FileNotFoundException {
-		File f =  new File(System.getProperty(JBOSS_SERVER_DATA_DIR), CONF_FILE_NAME);
-		//System.out.println("path: "+new File("").getAbsolutePath());
-		if(f.exists()) {
 			Scanner s = new Scanner(f);
-			
+
 			String ip = s.nextLine().split("IP:")[1].trim();
 			String port = s.nextLine().split("PORT:")[1].trim();
 			uri = "bolt://" + ip + ":" + port;
 			user = s.nextLine().split("USER:")[1].trim();
 			password = s.nextLine().split("PASS:")[1].trim();
 			logger = Logger.getLogger(DriverDatabaseNeo4j.class);
-			
-			s.close();
-		}else {
-			throw new FileNotFoundException("File \'"+ f.getPath() +"\' not found");
-		}
-			
-	}
 
+			s.close();
+
+		} else {
+			throw new FileNotFoundException("File database.conf not found");
+		}
+
+		/*
+		 * alternativa cluster String ip = System.getenv("ip"); String port =
+		 * System.getenv("port"); uri = "bolt://" + ip + ":" + port; user =
+		 * System.getenv("user"); password = System.getenv("pass"); logger =
+		 * Logger.getLogger(DriverDatabaseNeo4j.class);
+		 */
+	}
 	// CONNESSIONE
 
 	@Override
@@ -132,13 +125,15 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 	// ADD
 	@Override
-	public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref) {
+	public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref, boolean parking,
+			boolean hospital, boolean busStop, boolean museum) {
 		String query = "MERGE (a:Intersection {longitude: " + c.getLongitude() + ", latitude: " + c.getLatitude()
-				+ ", highway: \"" + highway + "\", osmid: " + osmid + ", ref: \"" + ref + "\",  betweenness: 0})"
-				+ " RETURN a.osmid";
+				+ ", highway: \"" + highway + "\", osmid: " + osmid + ", ref: \"" + ref
+				+ "\",  betweenness: 0, parking: " + parking + ", hospital: " + hospital + ", busStop: " + busStop
+				+ ", museum: " + museum + "})" + " RETURN a.osmid";
 		StatementResult result = transaction(query);
 		if (result.single().get("a.osmid").asLong() == osmid) {
-			return new Intersection(c, highway, osmid, ref);
+			return new Intersection(c, highway, osmid, ref, parking, hospital, busStop, museum);
 		}
 		return null;
 
@@ -146,14 +141,16 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 	// ADD
 
-	public Intersection addIntersectionInit(Coordinate c, String highway, long osmid, String ref, double betweenness) {
+	public Intersection addIntersectionInit(Coordinate c, String highway, long osmid, String ref, double betweenness,
+			boolean parking, boolean hospital, boolean busStop, boolean museum) {
 
 		String query = "CREATE (a:Intersection {longitude: " + c.getLongitude() + ", latitude: " + c.getLatitude()
 				+ ", highway: \"" + highway + "\", osmid: " + osmid + ", ref: \"" + ref + "\", betweenness: "
-				+ betweenness + "})" + " RETURN a.osmid";
+				+ betweenness + ", parking: " + parking + ", hospital: " + hospital + ", busStop: " + busStop
+				+ ", museum: " + museum + "})" + " RETURN a.osmid";
 		StatementResult result = transaction(query);
 		if (result.single().get("a.osmid").asLong() == osmid) {
-			return new Intersection(c, highway, osmid, ref, betweenness);
+			return new Intersection(c, highway, osmid, ref, betweenness, parking, hospital, busStop, museum);
 		}
 		return null;
 
@@ -162,8 +159,8 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	public Street addStreetInit(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
 			long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
 			double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
-			String service, String tunnel, String width, int origId, double weight, double flow,
-			double averageTravelTime) {
+			boolean transportService, String tunnel, String width, long origId, double weight, double flow,
+			double averageTravelTime, boolean interrupted) {
 
 		// System.out.println(arrayLanes.size());
 		StringBuilder sbLanes = new StringBuilder();
@@ -207,28 +204,27 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 				+ ", junction : \"" + junction + "\"" + ", key : " + key + ", arrayLanes : [" + sbLanes.toString() + "]"
 				+ ", length : " + length + ", maxSpeed : \"" + maxSpeed + "\"" + ", name : \"" + name + "\""
 				+ ", oneWay : " + oneWay + ", osmidEdges : [" + sbEdges.toString() + "]" + ", ref : \"" + ref + "\""
-				+ ", service : \"" + service + "\"" + ", tunnel : \"" + tunnel + "\"" + ", width : \"" + width + "\""
-				+ ", origId : " + origId + ", weight : " + weight + ", flow : " + flow + ", averageTravelTime : "
-				+ averageTravelTime + "}]->(b) " + "RETURN r.id";
+				+ ", transportService : \"" + transportService + "\"" + ", tunnel : \"" + tunnel + "\"" + ", width : \""
+				+ width + "\"" + ", origId : " + origId + ", weight : " + weight + ", flow : " + flow
+				+ ", averageTravelTime : " + averageTravelTime + ", interrupted : " + interrupted + "}]->(b) "
+				+ "RETURN r.id";
 
 		// System.out.println("query: "+query);
 		StatementResult result = transaction(query);
 
-		
-			return new Street(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-					arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, service, tunnel, width, origId, weight,
-					flow, averageTravelTime);
-		
+		return new Street(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
+				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId,
+				weight, flow, averageTravelTime, interrupted);
 
-		//return null;
+		// return null;
 	}
 
 	@Override
 	public Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
 			long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
 			double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
-			String service, String tunnel, String width, int origId, double weight, double flow,
-			double averageTravelTime) {
+			boolean transportService, String tunnel, String width, long origId, double weight, double flow,
+			double averageTravelTime, boolean interrupted) {
 
 		// System.out.println(arrayLanes.size());
 		StringBuilder sbLanes = new StringBuilder();
@@ -276,17 +272,17 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 				+ ", junction : \"" + junction + "\"" + ", key : " + key + ", arrayLanes : [" + sbLanes.toString() + "]"
 				+ ", length : " + length + ", maxSpeed : \"" + maxSpeed + "\"" + ", name : \"" + name + "\""
 				+ ", oneWay : " + oneWay + ", osmidEdges : [" + sbEdges.toString() + "]" + ", ref : \"" + ref + "\""
-				+ ", service : \"" + service + "\"" + ", tunnel : \"" + tunnel + "\"" + ", width : \"" + width + "\""
-				+ ", origId : " + origId + ", weight : " + weight + ", flow : " + flow + ", averageTravelTime : "
-				+ averageTravelTime + "}]->(b) " + "RETURN r.id";
+				+ ", transportService : " + transportService + ", tunnel : \"" + tunnel + "\"" + ", width : \"" + width
+				+ "\"" + ", origId : " + origId + ", weight : " + weight + ", flow : " + flow + ", averageTravelTime : "
+				+ averageTravelTime + ", interrupted : " + interrupted + "}]->(b) " + "RETURN r.id";
 
 		// System.out.println("query: "+query);
 		StatementResult result = transaction(query);
 
 		if (result.single().get("r.id").asInt() == id) {
 			return new Street(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-					arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, service, tunnel, width, origId, weight,
-					flow, averageTravelTime);
+					arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width,
+					origId, weight, flow, averageTravelTime, interrupted);
 		}
 
 		return null;
@@ -315,7 +311,7 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		// String query = "MATCH (a:Intersection {osmid:" + osmid + "}) RETURN
 		// properties(a)";
 
-		//System.out.println(query);
+		// System.out.println(query);
 		StatementResult result = transaction(query);
 
 		Value r = result.single().get("properties(a)");
@@ -325,8 +321,13 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		String highway = r.get("highway").asString();
 		long id = r.get("osmid").asLong();
 		String ref = r.get("ref").asString();
+		boolean parking = r.get("parking").asBoolean();
+		boolean hospital = r.get("hospital").asBoolean();
+		boolean busStop = r.get("busStop").asBoolean();
+		boolean museum = r.get("museum").asBoolean();
 
-		return new Intersection(c, highway, id, ref, betweenness);
+
+		return new Intersection(c, highway, id, ref, betweenness, parking, hospital, busStop, museum);
 
 	}
 
@@ -337,18 +338,9 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 		// System.out.println(query);
 		StatementResult result = transaction(query);
+		Value v = result.single().get("properties(a)");
 
-		Value r = result.single().get("properties(a)");
-		// String nome = r.get("name").asString();
-		Coordinate c = new Coordinate(r.get("longitude").asDouble(), r.get("latitude").asDouble());
-
-		String highway = r.get("highway").asString();
-		long id = r.get("osmid").asLong();
-		String ref = r.get("ref").asString();
-
-		double betweenness = r.get("betweenness").asDouble();
-
-		return new Intersection(c, highway, id, ref, betweenness, getStreets(osmid));
+		return convertIntersection(v);
 
 	}
 
@@ -358,20 +350,14 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 		// System.out.println(query);
 		StatementResult result = transaction(query);
+		try {
+			Value v = result.single().get("properties(a)");
 
-		Value r = result.single().get("properties(a)");
-		// String nome = r.get("name").asString();
-
-		Coordinate c = new Coordinate(r.get("longitude").asDouble(), r.get("latitude").asDouble());
-
-		String highway = r.get("highway").asString();
-		long id = r.get("osmid").asLong();
-		String ref = r.get("ref").asString();
-
-		double betweenness = r.get("betweenness").asDouble();
-
-		return new Intersection(c, highway, id, ref, betweenness);
-
+			return convertIntersection(v);
+		} catch (NoSuchRecordException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
@@ -415,17 +401,18 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 			osmidEdges.add((Long) o);
 		}
 		String ref = v.get("ref").asString();
-		String service = v.get("service").asString();
+		boolean transportService = v.get("transportService").asBoolean();
 		String tunnel = v.get("tunnel").asString();
 		String width = v.get("width").asString();
-		int origId = v.get("origId").asInt();
+		long origId = v.get("origId").asLong();
 		double weight = v.get("weight").asDouble();
 		double flow = v.get("flow").asDouble();
 		double averageTravelTime = v.get("averageTravelTime").asDouble();
+		boolean interrupted = v.get("interrupted").asBoolean();
 
 		return new Street(coordinates, ids, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, service, tunnel, width, origId, weight,
-				flow, averageTravelTime);
+				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId,
+				weight, flow, averageTravelTime, interrupted);
 
 	}
 
@@ -474,31 +461,34 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		int key = v.get("key").asInt();
 		List<Object> listLanes = v.get("arrayLanes").asList();
 		ArrayList<Integer> arrayLanes = new ArrayList<>();
-		for (Object o : listLanes) {
-			arrayLanes.add(((Long) o).intValue());
-		}
+		// TODO
+		// for (Object o : listLanes) {
+		// arrayLanes.add(((Long) o).intValue());
+		// }
 
 		double length = v.get("length").asDouble();
 		String maxSpeed = v.get("maxSpeed").asString();
 		String name = v.get("name").asString();
 		boolean oneWay = v.get("oneWay").asBoolean();
 		List<Object> listEdges = v.get("osmidEdges").asList();
+		// TODO
 		ArrayList<Long> osmidEdges = new ArrayList<>();
-		for (Object o : listEdges) {
-			osmidEdges.add((Long) o);
-		}
+//		for (Object o : listEdges) {
+//			osmidEdges.add((Long) o);
+//		}
 		String ref = v.get("ref").asString();
-		String service = v.get("service").asString();
+		boolean transportService = v.get("transportService").asBoolean();
 		String tunnel = v.get("tunnel").asString();
 		String width = v.get("width").asString();
-		int origId = v.get("origId").asInt();
+		long origId = v.get("origId").asLong();
 		double weight = v.get("weight").asDouble();
 		double flow = v.get("flow").asDouble();
 		double averageTravelTime = v.get("averageTravelTime").asDouble();
+		boolean interrupted = v.get("interrupted").asBoolean();
 
 		return new Street(coordinates, ids, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, service, tunnel, width, origId, weight,
-				flow, averageTravelTime);
+				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId,
+				weight, flow, averageTravelTime, interrupted);
 
 	}
 
@@ -555,8 +545,31 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	@Override
 	public ArrayList<Long> shortestPath(long osmidStart, long osmidDest) {
 		String query = "MATCH (start:Intersection{osmid:" + osmidStart + "}), (end:Intersection{osmid:" + osmidDest
-				+ "})\r\n" + "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING'})\r\n"
-				+ "YIELD nodeId, cost\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
+				+ "})\r\n"
+				+ "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING', nodeQuery:'MATCH(i:Intersection) RETURN id(i) as id',\r\n"
+				+ "relationshipQuery:'MATCH(a:Intersection)-[s:STREET{interrupted:false}]->(b:Intersection) RETURN id(a) as source, id(b) as target, s.weight as weight', graph:'cypher'})"
+				+ "YIELD nodeId\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
+
+		StatementResult result = interrogation(query);
+		ArrayList<Long> shortestPath = new ArrayList<>();
+		Record r;
+		long vertexKey;
+		while (result.hasNext()) {
+			r = result.next();
+			vertexKey = r.get("vertexKeys").asLong();
+
+			shortestPath.add(vertexKey);
+			// System.out.println("vert: "+vertexKey);
+		}
+		return shortestPath;
+	}
+
+	@Override
+	public ArrayList<Coordinate> shortestPathCoordinate(long osmid1, long osmid2) {
+		String query = "MATCH (start:Intersection{osmid:" + osmid1 + "}), (end:Intersection{osmid:" + osmid2 + "})\r\n"
+				+ "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING', nodeQuery:'MATCH(i:Intersection) RETURN id(i) as id',\r\n"
+				+ "relationshipQuery:'MATCH(a:Intersection)-[s:STREET{interrupted:false}]->(b:Intersection) RETURN id(a) as source, id(b) as target, s.weight as weight', graph:'cypher'})"
+				+ "YIELD nodeId\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
 
 		StatementResult result = interrogation(query);
 		ArrayList<Long> shortestPath = new ArrayList<>();
@@ -568,51 +581,28 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 			shortestPath.add(vertexKey);
 		}
-		return shortestPath;
+		ArrayList<Coordinate> coordstmp = new ArrayList<>();
+		ArrayList<Coordinate> coords = new ArrayList<>();
+
+		for (int i = 0; i < shortestPath.size() - 1; i++) {
+			coordstmp = getStreetGeometry(shortestPath.get(i), shortestPath.get(i + 1));
+			coords.addAll(coordstmp);
+		}
+		return coords;
 	}
 
 	@Override
 	public ArrayList<Intersection> getTopCriticalNodes(int top) {
-		String query = "MATCH (a:Intersection) RETURN properties(a) ORDER BY a.betweenness DESC LIMIT " + top;
+		String query = "MATCH (i:Intersection) RETURN properties(i) ORDER BY i.betweenness DESC LIMIT " + top;
 		StatementResult result = interrogation(query);
-		ArrayList<Intersection> criticalNodes = new ArrayList<>();
-		Record r;
-		Value v;
-		while (result.hasNext()) {
-			r = result.next();
-			v = r.get("properties(a)");
-			Coordinate c = new Coordinate(v.get("longitude").asDouble(), v.get("latitude").asDouble());
-
-			String highway = v.get("highway").asString();
-			long id = v.get("osmid").asLong();
-			String ref = v.get("ref").asString();
-			double betweenness = v.get("betweenness").asDouble();
-
-			criticalNodes.add(new Intersection(c, highway, id, ref, betweenness));
-		}
-		return criticalNodes;
+		return convertToIntersectionArrayList(result, "i");
 	}
 
 	@Override
 	public ArrayList<Intersection> getThresholdCriticalNodes(double threshold) {
-		String query = "	MATCH (a:Intersection) WHERE a.betweenness > " + threshold + " RETURN properties(a)";
+		String query = "	MATCH (i:Intersection) WHERE i.betweenness > " + threshold + " RETURN properties(i)";
 		StatementResult result = interrogation(query);
-		ArrayList<Intersection> criticalNodes = new ArrayList<>();
-		Record r;
-		Value v;
-		while (result.hasNext()) {
-			r = result.next();
-			v = r.get("properties(a)");
-			Coordinate c = new Coordinate(v.get("longitude").asDouble(), v.get("latitude").asDouble());
-
-			String highway = v.get("highway").asString();
-			long id = v.get("osmid").asLong();
-			String ref = v.get("ref").asString();
-			double betweenness = v.get("betweenness").asDouble();
-
-			criticalNodes.add(new Intersection(c, highway, id, ref, betweenness));
-		}
-		return criticalNodes;
+		return convertToIntersectionArrayList(result, "i");
 
 	}
 
@@ -656,8 +646,8 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	@Override
 	public void updateBetweeennessBrandesRandom() {
 		String query = "CALL algo.betweenness.sampled('Intersection','STREET', {strategy:'random', direction: \"out\", writeProperty:'betweenness',probability: 1, maxDepth: 4, weightProperty:'weight'})";
-		 transaction(query);
-		 setLastModified();
+		transaction(query);
+		setLastModified();
 	}
 
 //	@Override
@@ -673,7 +663,7 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	public void updateBetweeennessBrandesDegree() {
 		System.out.println("sono in bcUpdate");
 		String query = "CALL algo.betweenness.sampled('Intersection','STREET', {strategy:'degree', direction: \"out\", writeProperty:'betweenness',probability: 1, maxDepth: 4, weightProperty:'weight'})";
-		
+
 		transaction(query);
 		setLastModified();
 		System.out.println("ho fatto");
@@ -694,50 +684,24 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	}
 
 	@Override
-	public ArrayList<Coordinate> shortestPathCoordinate(long osmid1, long osmid2) {
-		String query = "MATCH (start:Intersection{osmid:" + osmid1 + "}), (end:Intersection{osmid:" + osmid2 + "})\r\n"
-				+ "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING'})\r\n"
-				+ "YIELD nodeId, cost\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
-
-		StatementResult result = interrogation(query);
-		ArrayList<Long> shortestPath = new ArrayList<>();
-		Record r;
-		long vertexKey;
-		while (result.hasNext()) {
-			r = result.next();
-			vertexKey = r.get("vertexKeys").asLong();
-
-			shortestPath.add(vertexKey);
-		}
-		ArrayList<Coordinate> coordstmp = new ArrayList<>();
-		ArrayList<Coordinate> coords = new ArrayList<>();
-
-		for (int i = 0; i < shortestPath.size() - 1; i++) {
-			coordstmp = getStreetGeometry(shortestPath.get(i), shortestPath.get(i + 1));
-			coords.addAll(coordstmp);
-		}
-		return coords;
-	}
-
-	@Override
 	public LocalDateTime getLastModified() {
 		StatementResult result = interrogation("MATCH (a:Control) Return a.timestamp");
 		Record r = result.single();
 		LocalDateTime ldt = r.get("a.timestamp").asLocalDateTime();
 		return ldt;
 	}
-	
+
 //	public LocalDateTime setLastModified() {
 //		StatementResult result = interrogation("MATCH (a:Control) SET a.timestamp = localdatetime() Return a.timestamp");
 //		Record r = result.single();	
 //		LocalDateTime ldt = r.get("a.timestamp").asLocalDateTime();
 //		return ldt;
 //	}
-	
+
 	public void setLastModified() {
-		transaction("MATCH (a:Control)  SET a.timestamp = localdatetime() WITH a CALL streams.publish('test', a.timestamp) Return *");
+		transaction(
+				"MATCH (a:Control)  SET a.timestamp = localdatetime() WITH a CALL streams.publish('test', a.timestamp) Return *");
 	}
-	
 
 	public ArrayList<Integer> getLinkKeys() {
 		String query = "MATCH ()-[r:STREET]->() RETURN r.id as linkKeys";
@@ -754,7 +718,7 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		}
 		return linkKeys;
 	}
-	
+
 	public ArrayList<Long> getIntesectionOsmids() {
 		String query = "MATCH (a:Intersection) RETURN a.osmid as osmid";
 		StatementResult result = interrogation(query);
@@ -776,8 +740,8 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		Random random = new Random();
 		int lk = linkKeys.get(random.nextInt(linkKeys.size()));
 
-		String query = "MATCH ()-[r:STREET{id:" + lk + "}]->() SET r.weight= " + weight ;
-		
+		String query = "MATCH ()-[r:STREET{id:" + lk + "}]->() SET r.weight= " + weight;
+
 		transaction(query);
 		setLastModified();
 	}
@@ -807,6 +771,20 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		setLastModified();
 	}
 
+	@Override
+	public void setStreetInterrupted(int id, boolean interrupted) {
+		String query = "MATCH ()-[s:STREET{linkKey:" + id + "}]->() SET s.interruption= " + interrupted + " return *";
+		transaction(query);
+		// TODO gestire valore di ritorno con try/catch e gestione errore
+
+	}
+
+	@Override
+	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted) {
+
+		return false;
+	}
+
 //	public LocalDateTime setLastModified() {
 //		StatementResult result = interrogation(
 //				"MATCH (a:Control) SET a.timestamp = localdatetime() Return a.timestamp");
@@ -815,4 +793,185 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 //		return ldt;
 //	}
 
+	public Intersection getNearestIntersection(Coordinate position) {
+		// String query= "MATCH (t:Intersection)-[:STREET]->(s:Intersection)\r\n" +
+		// "WITH point({ longitude: "+position.getLongitude()+", latitude:
+		// "+position.getLatitude()+"}) AS startPoint, point({ longitude: s.lon,
+		// latitude: s.lat }) AS destPoint\r\n" +
+		// "RETURN round(distance(trainPoint, officePoint)) AS travelDistance,
+		// destPoint";
+
+		String query = "MATCH (t:Intersection)  " + "WITH t , distance(point({ longitude: " + position.getLongitude()
+				+ ", latitude: " + position.getLatitude()
+				+ " }), point({ longitude: t.longitude, latitude: t.latitude })) AS distance " + "order by distance "
+				+ "return properties(t), distance  LIMIT 1";
+
+		/*
+		 * carmine String query = "with " + position.getLatitude() + " as lat , " +
+		 * position.getLongitude() + " as lon, 0.7 as range " +
+		 * "match (t:Intersection) " +
+		 * "with (lon - t.longitude) as lenX, (lat - t.latitude) as lenY, t.osmid as osmid, t "
+		 * + "where lenX < range and lenX > -range and lenY < range and lenY > -range "
+		 * + "with sqrt((lenX*lenX)+(lenY*lenY)) as distance, lenX, lenY, osmid, t  " +
+		 * "order by distance " + "return  osmid, distance, properties(t) limit 1";
+		 */
+		StatementResult result = interrogation(query);
+		Record r = result.single();
+
+		double dist = r.get("distance").asDouble();
+		// System.out.println("dist: "+dist);
+		if (dist > 10000) {
+			return null; // TODO verifica
+		}
+		Value v = r.get("properties(t)");
+
+		return convertIntersection(v);
+	}
+
+	public Intersection getNearestParking(Coordinate position) {
+		// String query= "MATCH (t:Intersection)-[:STREET]->(s:Intersection)\r\n" +
+		// "WITH point({ longitude: "+position.getLongitude()+", latitude:
+		// "+position.getLatitude()+"}) AS startPoint, point({ longitude: s.lon,
+		// latitude: s.lat }) AS destPoint\r\n" +
+		// "RETURN round(distance(trainPoint, officePoint)) AS travelDistance,
+		// destPoint";
+
+		/*
+		 * Chiara String query = "MATCH (t:Intersection{t.parking:true}) \r\n" +
+		 * "WITH t as nodo, distance(point({ longitude: " + position.getLongitude() +
+		 * ", latitude: " + position.getLatitude() +
+		 * " }), point({ longitude: t.longitude, latitude: t.latitude }) ) AS dist\r\n"
+		 * + "return nodo.osmid, dist order by dist LIMIT 1";
+		 */
+
+		String query = "with " + position.getLatitude() + " as lat , " + position.getLongitude()
+				+ " as lon, 0.7 as range " + "match (t:Intersection {parking : true}) "
+				+ "with (lon - t.longitude) as lenX, (lat - t.latitude) as lenY, t.osmid as osmid, t "
+				// + "where lenX < range and lenX > -range and lenY < range and lenY > -range "
+				+ "with sqrt((lenX*lenX)+(lenY*lenY)) as distance, lenX, lenY, osmid, t  " + "order by distance "
+				+ "return  osmid, distance, properties(t) limit 1";
+		StatementResult result = interrogation(query);
+		Record r = result.single();
+
+		double dist = r.get("distance").asDouble();
+
+		if (dist > 1000) {
+			return null; // TODO verifica
+		}
+		Value v = r.get("properties(t)");
+
+		return convertIntersection(v);
+	}
+
+	public Intersection getNearestHospital(Coordinate position) {
+		// String query= "MATCH (t:Intersection)-[:STREET]->(s:Intersection)\r\n" +
+		// "WITH point({ longitude: "+position.getLongitude()+", latitude:
+		// "+position.getLatitude()+"}) AS startPoint, point({ longitude: s.lon,
+		// latitude: s.lat }) AS destPoint\r\n" +
+		// "RETURN round(distance(trainPoint, officePoint)) AS travelDistance,
+		// destPoint";
+
+		/*
+		 * Chiara String query = "MATCH (t:Intersection{t.hospital:true}) \r\n" +
+		 * "WITH t as nodo, distance(point({ longitude: " + position.getLongitude() +
+		 * ", latitude: " + position.getLatitude() +
+		 * " }), point({ longitude: t.longitude, latitude: t.latitude }) ) AS dist\r\n"
+		 * + "return nodo.osmid, dist order by dist LIMIT 1";
+		 */
+
+		String query = "with " + position.getLatitude() + " as lat , " + position.getLongitude()
+				+ " as lon, 0.7 as range " + "match (t:Intersection {hospital : true}) "
+				+ "with (lon - t.longitude) as lenX, (lat - t.latitude) as lenY, t.osmid as osmid, t "
+				// + "where lenX < range and lenX > -range and lenY < range and lenY > -range "
+				+ "with sqrt((lenX*lenX)+(lenY*lenY)) as distance, lenX, lenY, osmid, t  " + "order by distance "
+				+ "return  osmid, distance, properties(t) limit 1";
+
+		StatementResult result = interrogation(query);
+		Record r = result.single();
+
+		double dist = r.get("distance").asDouble();
+		/*
+		 * if (dist > 1000) { return null; // TODO verifica }
+		 */
+		Value v = r.get("properties(t)");
+
+		return convertIntersection(v);
+
+		// return getIntersection(r.get("osmid").asLong());
+	}
+
+	@Override
+	public ArrayList<Intersection> getAllParkings() {
+		String query = "match (i:Intersection {parking:true}) return properties(i)";
+		StatementResult result = interrogation(query);
+		return convertToIntersectionArrayList(result, "i");
+	}
+
+	@Override
+	public ArrayList<Intersection> getAllHospitals() {
+		String query = "match (i:Intersection {hospital:true}) return properties(i)";
+		StatementResult result = interrogation(query);
+		return convertToIntersectionArrayList(result, "i");
+	}
+
+	private ArrayList<Intersection> convertToIntersectionArrayList(StatementResult result, String nodeName) {
+		ArrayList<Intersection> intersections = new ArrayList<>();
+		Record r;
+		Value v;
+		while (result.hasNext()) {
+			r = result.next();
+			v = r.get("properties(" + nodeName + ")");
+			Coordinate c = new Coordinate(v.get("longitude").asDouble(), v.get("latitude").asDouble());
+
+			String highway = v.get("highway").asString();
+			long id = v.get("osmid").asLong();
+			String ref = v.get("ref").asString();
+			double betweenness = v.get("betweenness").asDouble();
+			boolean parking = v.get("parking").asBoolean();
+			boolean hospital = v.get("hospital").asBoolean();
+			boolean busStop = v.get("busStop").asBoolean();
+			boolean museum = v.get("museum").asBoolean();
+
+			intersections.add(new Intersection(c, highway, id, ref, betweenness, parking, hospital, busStop, museum));
+		}
+		return intersections;
+	}
+
+	private Intersection convertIntersection(Value r) {
+		try {
+
+			// String nome = r.get("name").asString();
+			Coordinate c = new Coordinate(r.get("longitude").asDouble(), r.get("latitude").asDouble());
+
+			String highway = r.get("highway").asString();
+			long id = r.get("osmid").asLong();
+			String ref = r.get("ref").asString();
+
+			double betweenness = r.get("betweenness").asDouble();
+
+			boolean parking = r.get("parking").asBoolean();
+			boolean hospital = r.get("hospital").asBoolean();
+			boolean busStop = r.get("busStop").asBoolean();
+			boolean museum = r.get("museum").asBoolean();
+
+			return new Intersection(c, highway, id, ref, betweenness, parking, hospital, busStop, museum);
+		} catch (NoSuchRecordException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	public double distanceShortestPathBus(long osmidStart, long osmidDest) {
+		String query = "MATCH (start:Intersection{osmid:" + osmidStart + "}), (end:Intersection{osmid:" + osmidDest
+				+ "})\r\n"
+				+ "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING', nodeQuery:'MATCH(i:Intersection) RETURN id(i) as id',\r\n"
+				+ "relationshipQuery:'MATCH(a:Intersection)-[s:STREET{interrupted:false}]->(b:Intersection) RETURN id(a) as source, id(b) as target, s.weight as weight', graph:'cypher'})"
+				+ "YIELD nodeId, cost\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys, cost order by cost desc limit 1";
+
+		StatementResult result = interrogation(query);
+		
+		Record r = result.single();
+		return r.get("cost").asDouble();			
+	}
 }

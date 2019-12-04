@@ -4,10 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import data.dataModel.*;
 import org.neo4j.driver.v1.StatementResult;
 
-
+import data.dataModel.*;
 
 /**
  * Interface that gives all methods that define the operations to do on neo4j
@@ -54,7 +53,7 @@ public interface DriverDatabase {
 	 * @param ref
 	 * @return The Java representation of the Intersection.
 	 */
-	public Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref);
+	public Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum);
 
 	/**
 	 * Add a directional STREET relation to the database with given parameters.
@@ -77,7 +76,7 @@ public interface DriverDatabase {
 	 * @param osmidEdges        List of OSM nodes crossed and incorporated in the
 	 *                          street.
 	 * @param ref               Describes if the street has an exit with a specific number assigned to it.
-	 * @param service           Describe if some services such as bus rides are
+	 * @param transportService  Describe if some services such as bus rides are
 	 *                          active.
 	 * @param tunnel            Describes if it is present a tunnel.
 	 * @param width             Width of street in meters.
@@ -90,8 +89,8 @@ public interface DriverDatabase {
 	public Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
                             long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
                             double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
-                            String service, String tunnel, String width, int origId, double weight, double flow,
-                            double averageTravelTime);
+                            boolean transportService, String tunnel, String width, long origId, double weight, double flow,
+                            double averageTravelTime, boolean interrupted);
 
 	// public Intersection setIntersection(int vertexKey, String name, float lat,
 	// float lon, float betweenness);
@@ -343,5 +342,22 @@ public interface DriverDatabase {
 	 * @return Timestamp of last update.
 	 */
 	public LocalDateTime getLastModified();
+	
+	public void setStreetInterrupted(int id, boolean interrupted);
+	
+	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
+	
+	public Intersection getNearestIntersection(Coordinate position);
+	
+	public Intersection getNearestParking(Coordinate position);
+	
+	public Intersection getNearestHospital(Coordinate position) ;
+	
+	public ArrayList<Intersection> getAllParkings();
+	
+	public ArrayList<Intersection> getAllHospitals();
+	
+	public double distanceShortestPathBus(long osmidStart, long osmidDest);
 
+	
 }

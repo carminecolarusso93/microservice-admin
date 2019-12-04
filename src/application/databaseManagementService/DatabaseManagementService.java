@@ -1,9 +1,5 @@
 package application.databaseManagementService;
 
-import data.dataModel.*;
-import data.databaseDriver.*;
-import util.ServerUtilities;
-
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,7 +10,8 @@ import javax.annotation.PreDestroy;
 
 import javax.ejb.Stateless;
 
-
+import data.databaseDriver.*;
+import data.dataModel.*;
 
 /**
  * Session Bean implementation class DatabaseManagementService.
@@ -26,10 +23,13 @@ import javax.ejb.Stateless;
 @Stateless
 public class DatabaseManagementService implements DatabaseManagementServiceRemote, DatabaseManagementServiceLocal {
 
-	DriverDatabase database;
-	protected String databeseURI = null;
-	protected String databaseUser = null;
-	protected String databasePass = null;
+	public static final String DATABASE_IP = "localhost";
+	public static final String BOLT_PORT = "7687";
+	public static final String DEFAULT_USERNAME = "neo4j";
+	public static final String DEFAULT_PASSWORD = "assd";
+
+	private DriverDatabase database;
+
 	/**
 	 * Default constructor.
 	 * <p>
@@ -38,15 +38,9 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	 * @throws FileNotFoundException 
 	 */
 	public DatabaseManagementService() throws FileNotFoundException {
-		try {
-			ServerUtilities serverUtilities = new ServerUtilities();
-			this.databeseURI = serverUtilities.getDatabaseUri();
-			this.databaseUser = serverUtilities.getDatabaseUser();
-			this.databasePass = serverUtilities.getDatabasePass();
-			database = new DriverDatabaseNeo4j(databeseURI, databaseUser, databasePass);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		String uri = "bolt://" + DATABASE_IP + ":" + BOLT_PORT;
+//		this.database = new DriverDatabaseNeo4j(uri, DEFAULT_USERNAME, DEFAULT_PASSWORD);
+		this.database = new DriverDatabaseNeo4j();
 	}
 
 	/**
@@ -66,20 +60,9 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	}
 
 	@Override
-	public String test() {
-		try {
-			ServerUtilities serverUtilities = new ServerUtilities();
-			return serverUtilities.getDatabaseUri();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref) {
+	public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum) {
 		
-		Intersection i = database.addIntersection(c, highway, osmid, ref);
+		Intersection i = database.addIntersection(c, highway, osmid, ref, parking, hospital, busStop, museum);
 //		double bet = database.updateBetweeennessBrandesDegree(osmid);
 //		i.setBeetweeness(bet);
 		return i;
@@ -88,10 +71,10 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	@Override
 	public Street addStreet(ArrayList<Coordinate>coordinates, int id, String access, String area, String bridge, long osmidStart,
 			long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double length,
-			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, String service,
-			String tunnel, String width, int origId, double weight,double flow,double averageTravelTime) {
+			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
+			String tunnel, String width, int origId, double weight,double flow,double averageTravelTime, boolean interrupted) {
 		Street s = database.addStreet(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, service, tunnel, width, origId, weight,flow,averageTravelTime);
+				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId, weight,flow,averageTravelTime,interrupted);
 		database.updateBetweenness();
 		return s;
 	}
@@ -190,7 +173,6 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	@Override
 	public void updateBetweenness() {
 		database.updateBetweenness();
-		
 	}
 
 	@Override
@@ -198,5 +180,46 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 		return database.getLastModified();
 	}
 
+	@Override
+	public void setStreetInterrupted(int id, boolean interrupted) {
+		database.setStreetInterrupted(id, interrupted);		
+	}
+
+	@Override
+	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted) {
+		return database.setStreetInterrupted(osmidStart, osmidDest, interrupted);
+	}
+
+	public Intersection getNearestIntersection(Coordinate position) {
+		return database.getNearestIntersection(position);
+	}
+
+	@Override
+	public Intersection getNearestParking(Coordinate position) {
+		return database.getNearestParking(position);
+	}
+
+	@Override
+	public Intersection getNearestHospital(Coordinate position) {
+		return database.getNearestHospital(position);
+	}
+
+	@Override
+	public ArrayList<Intersection> getAllParkings() {
+		return database.getAllParkings();
+	}
+
+	@Override
+	public ArrayList<Intersection> getAllHospitals() {
+		return database.getAllHospitals();
+	}
+
+	@Override
+	public double distanceShortestPathBus(long osmidStart, long osmidDest) {
+		// TODO Auto-generated method stub
+		return database.distanceShortestPathBus(osmidStart, osmidDest);
+	}
+	
+	
 	
 }

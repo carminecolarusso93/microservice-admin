@@ -7,7 +7,7 @@ import javax.ejb.Remote;
 import data.dataModel.Intersection;
 
 @Remote
-public interface TestEJBRemote {
+public interface TestEJBRemoteAdmin {
 
 	public String test();
 	public ArrayList<Intersection> getTopCriticalNodes(int top);

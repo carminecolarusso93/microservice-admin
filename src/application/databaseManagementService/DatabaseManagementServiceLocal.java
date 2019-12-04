@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.ejb.Local;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.core.Response;
 
 import data.dataModel.*;
-
 
 /**
  * Local Interface for the EJB that implements the administration Service of the
@@ -31,7 +32,7 @@ public interface DatabaseManagementServiceLocal {
 	 * @param ref
 	 * @return The Java representation of the Intersection.
 	 */
-	public Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref);
+	public Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum);
 
 	/**
 	 * Add a directional STREET relation to the database with given parameters.
@@ -54,7 +55,7 @@ public interface DatabaseManagementServiceLocal {
 	 * @param osmidEdges        List of OSM nodes crossed and incorporated in the
 	 *                          street.
 	 * @param ref               Describes if the street has an exit with a specific number assigned to it.
-	 * @param service           Describe if some services such as bus rides are
+	 * @param transportService  Describe if some services such as bus rides are
 	 *                          active.
 	 * @param tunnel            Describes if it is present a tunnel.
 	 * @param width             Width of street in meters.
@@ -67,8 +68,8 @@ public interface DatabaseManagementServiceLocal {
 	public Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
                             long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
                             double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
-                            String service, String tunnel, String width, int origId, double weight, double flow,
-                            double averageTravelTime);
+                            boolean transportService, String tunnel, String width, int origId, double weight, double flow,
+                            double averageTravelTime, boolean interrupted);
 
 	// public Intersection setIntersection(int vertexKey, String name, float lat,
 	// float lon, float betweenness);
@@ -244,6 +245,34 @@ public interface DatabaseManagementServiceLocal {
 	 * @return Timestamp of last update.
 	 */
 	public LocalDateTime getLastModified();
+	
+	/**
+	 * Update the interrupted value of a specific street. 
+	 * @param id    	Id of the street to update.
+	 * @param interrupted Value to set to the interrupted property of a given street;
+	 * @return 
+	 */
+	public void setStreetInterrupted(int id, boolean interrupted);
+	
+	/**
+	 * Update the interrupted value of a specific street. 
+	 * @param osmidStart    	Id of the starting node of the Street.
+	 * @param osmidDest    	Id of the destination node of the Street.
+	 * @param interrupted Value to set to the interrupted property of a given street;
+	 * @return 
+	 */
+	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
+	
+	public Intersection getNearestIntersection(Coordinate position);
+	
+	public Intersection getNearestParking(Coordinate position);
+	
+	public Intersection getNearestHospital(Coordinate position);
+	
+	public ArrayList<Intersection> getAllParkings();
+	
+	public ArrayList<Intersection> getAllHospitals();
+	
+	public double distanceShortestPathBus(long osmidStart, long osmidDest);
 
-    public String test();
 }

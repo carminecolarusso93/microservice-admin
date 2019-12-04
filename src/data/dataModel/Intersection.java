@@ -3,7 +3,6 @@ package data.dataModel;
 import java.util.HashMap;
 
 
-
 public class Intersection {
 
 	private Coordinate coordinate;
@@ -12,6 +11,7 @@ public class Intersection {
 	private String ref;
 	private double betweenness;
 	private HashMap<Integer, Street> streets;
+	private boolean parking, hospital, busStop, museum;
 
 	/**
 	 * @param coordinate  Longitude and Latitude of Intersection in Decimal Degrees
@@ -23,14 +23,20 @@ public class Intersection {
 	 * @param betweenness The start value of Betweenness Centrality of the
 	 *                    Intersection
 	 */
-	public Intersection(Coordinate coordinate, String highway, long osmid, String ref, double betweenness) {
+	public Intersection(Coordinate coordinate, String highway, long osmid, String ref, double betweenness,
+			boolean parking, boolean hospital, boolean busStop, boolean museum) {
 		super();
 		this.coordinate = coordinate;
 		this.highway = highway;
 		this.osmid = osmid;
 		this.ref = ref;
 		this.betweenness = betweenness;
+		this.parking = parking;
 		this.streets = null;
+		this.hospital = hospital;
+		this.busStop = busStop;
+		this.museum = museum;
+
 	}
 
 	/**
@@ -46,7 +52,7 @@ public class Intersection {
 	 * @param streets     Streets coming out of the intersection.
 	 */
 	public Intersection(Coordinate coordinate, String highway, long osmid, String ref, double betweenness,
-			HashMap<Integer, Street> streets) {
+			HashMap<Integer, Street> streets, boolean parking, boolean hospital, boolean busStop, boolean museum) {
 		super();
 		this.coordinate = coordinate;
 		this.highway = highway;
@@ -54,15 +60,24 @@ public class Intersection {
 		this.ref = ref;
 		this.betweenness = betweenness;
 		this.streets = streets;
+		this.parking = parking;
+		this.hospital = hospital;
+		this.busStop = busStop;
+		this.museum = museum;
 	}
 
-	public Intersection(Coordinate coordinate, String highway, long osmid, String ref) {
+	public Intersection(Coordinate coordinate, String highway, long osmid, String ref, boolean parking,
+			boolean hospital, boolean busStop, boolean museum) {
 		super();
 		this.coordinate = coordinate;
 		this.highway = highway;
 		this.osmid = osmid;
 		this.ref = ref;
 		this.betweenness = 0;
+		this.parking = parking;
+		this.hospital = hospital;
+		this.busStop = busStop;
+		this.museum = museum;
 	}
 
 	public Coordinate getCoordinate() {
@@ -113,10 +128,43 @@ public class Intersection {
 		this.streets = streets;
 	}
 
+	public boolean isParking() {
+		return parking;
+	}
+
+	public void setParking(boolean parking) {
+		this.parking = parking;
+	}
+
+	public boolean isHospital() {
+		return hospital;
+	}
+
+	public void setHospital(boolean hospital) {
+		this.hospital = hospital;
+	}
+
+	public boolean isBusStop() {
+		return busStop;
+	}
+
+	public void setBusStop(boolean busStop) {
+		this.busStop = busStop;
+	}
+
+	public boolean isMuseum() {
+		return museum;
+	}
+
+	public void setMuseum(boolean museum) {
+		this.museum = museum;
+	}
+
 	@Override
 	public String toString() {
 		return "Intersection [coordinate=" + coordinate + ", highway=" + highway + ", osmid=" + osmid + ", ref=" + ref
-				+ ", betweenness=" + betweenness + ", streets=" + streets + "]";
+				+ ", betweenness=" + betweenness + ", streets=" + streets + ", parking=" + parking + ", hospital="
+				+ hospital + ", busStop=" + busStop + ", museum=" + museum + "]";
 	}
 
 }

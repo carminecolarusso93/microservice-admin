@@ -1,6 +1,6 @@
 package presentation.servlet;
 
-import application.ejb.TestEJBLocal;
+import application.ejb.TestEJBLocalAdmin;
 import com.google.gson.Gson;
 import data.dataModel.Intersection;
 
@@ -22,7 +22,7 @@ public class TopServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	@EJB
-    TestEJBLocal testEJB;
+    TestEJBLocalAdmin testEJB;
     /**
      * @see HttpServlet#HttpServlet()
      */

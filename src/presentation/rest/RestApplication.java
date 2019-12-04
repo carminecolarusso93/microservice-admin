@@ -11,7 +11,6 @@ public class RestApplication extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> s = new HashSet<Class<?>>();
 		s.add(presentation.rest.DatabaseManagementController.class);
-		
 		return s;
 	}
 
