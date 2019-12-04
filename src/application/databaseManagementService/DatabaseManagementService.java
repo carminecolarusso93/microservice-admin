@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 
 import data.databaseDriver.*;
 import data.dataModel.*;
+import util.ServerUtilities;
 
 /**
  * Session Bean implementation class DatabaseManagementService.
@@ -23,25 +24,29 @@ import data.dataModel.*;
 @Stateless
 public class DatabaseManagementService implements DatabaseManagementServiceRemote, DatabaseManagementServiceLocal {
 
-	public static final String DATABASE_IP = "localhost";
-	public static final String BOLT_PORT = "7687";
-	public static final String DEFAULT_USERNAME = "neo4j";
-	public static final String DEFAULT_PASSWORD = "assd";
-
-	private DriverDatabase database;
+	DriverDatabase database;
+	protected String databeseURI = null;
+	protected String databaseUser = null;
+	protected String databasePass = null;
 
 	/**
 	 * Default constructor.
 	 * <p>
-	 * Instantiate a driver to access the Neo4j Graph Database for admin user with
-	 * default bolt uri and credentials.
-	 * @throws FileNotFoundException 
+	 * Instantiate a driver to access the Neo4j Graph Database for common user with default bolt uri and credentials.
+	 * @throws FileNotFoundException
 	 */
-	public DatabaseManagementService() throws FileNotFoundException {
-		String uri = "bolt://" + DATABASE_IP + ":" + BOLT_PORT;
-//		this.database = new DriverDatabaseNeo4j(uri, DEFAULT_USERNAME, DEFAULT_PASSWORD);
-		this.database = new DriverDatabaseNeo4j();
+	public DatabaseManagementService() {
+		try {
+			ServerUtilities serverUtilities = new ServerUtilities();
+			this.databeseURI = serverUtilities.getDatabaseUri();
+			this.databaseUser = serverUtilities.getDatabaseUser();
+			this.databasePass = serverUtilities.getDatabasePass();
+			database = new DriverDatabaseNeo4j(databeseURI, databaseUser, databasePass);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
+
 
 	/**
 	 * Called after the EJB construction. Open the connection to the database.
@@ -219,7 +224,4 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 		// TODO Auto-generated method stub
 		return database.distanceShortestPathBus(osmidStart, osmidDest);
 	}
-	
-	
-	
 }

@@ -41,33 +41,6 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		logger = Logger.getLogger(DriverDatabaseNeo4j.class);
 	}
 
-	public DriverDatabaseNeo4j() throws FileNotFoundException {
-		File f = new File("database.conf");
-		// System.out.println("path: "+new File("").getAbsolutePath());
-		if (f.exists()) {
-
-			Scanner s = new Scanner(f);
-
-			String ip = s.nextLine().split("IP:")[1].trim();
-			String port = s.nextLine().split("PORT:")[1].trim();
-			uri = "bolt://" + ip + ":" + port;
-			user = s.nextLine().split("USER:")[1].trim();
-			password = s.nextLine().split("PASS:")[1].trim();
-			logger = Logger.getLogger(DriverDatabaseNeo4j.class);
-
-			s.close();
-
-		} else {
-			throw new FileNotFoundException("File database.conf not found");
-		}
-
-		/*
-		 * alternativa cluster String ip = System.getenv("ip"); String port =
-		 * System.getenv("port"); uri = "bolt://" + ip + ":" + port; user =
-		 * System.getenv("user"); password = System.getenv("pass"); logger =
-		 * Logger.getLogger(DriverDatabaseNeo4j.class);
-		 */
-	}
 	// CONNESSIONE
 
 	@Override
