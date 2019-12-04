@@ -162,8 +162,7 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 
 	@Override
 	public Response getStreet(int id) {
-		database.getStreet(id);
-		return Response.ok().build();
+		return Response.ok().entity(database.getStreet(id)).build();
 	}
 
 	@Override
