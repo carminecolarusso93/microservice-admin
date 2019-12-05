@@ -27,17 +27,30 @@ public class ServerUtilities {
 		this.configurationFile = ServerUtilities.getConfigurationFile();
 	}
 
-	public String getDatabaseUri() {
-		String ip = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j", "ip");
-		String port = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j", "port");
+	public String getDatabaseReplicaUri() {
+		String ip = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "bolt-ip");
+		String port = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "bolt-port");
+		return "bolt://" + ip + ":" + port;
+	}
+	public String getDatabaseReplicaUser() {
+		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "user");
+	}
+
+	public String getDatabaseReplicaPass() {
+		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "password");
+	}
+
+	public String getDatabaseCoreUri() {
+		String ip = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-core", "bolt-ip");
+		String port = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-core", "bolt-port");
 		return "bolt://" + ip + ":" + port;
 	}
 
-	public String getDatabaseUser() {
-		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j", "user");
+	public String getDatabaseCoreUser() {
+		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-core", "user");
 	}
 
-	public String getDatabasePass() {
-		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j", "password");
+	public String getDatabaseCorePass() {
+		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-core", "password");
 	}
 }

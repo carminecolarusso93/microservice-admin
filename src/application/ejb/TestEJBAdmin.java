@@ -30,9 +30,9 @@ public class TestEJBAdmin implements TestEJBRemoteAdmin, TestEJBLocalAdmin {
     public TestEJBAdmin() {
 		try {
 			ServerUtilities serverUtilities = new ServerUtilities();
-			this.databeseURI = serverUtilities.getDatabaseUri();
-			this.databaseUser = serverUtilities.getDatabaseUser();
-			this.databasePass = serverUtilities.getDatabasePass();
+			this.databeseURI = serverUtilities.getDatabaseCoreUri();
+			this.databaseUser = serverUtilities.getDatabaseCoreUser();
+			this.databasePass = serverUtilities.getDatabaseCorePass();
 			driverDatabase = new DriverDatabaseNeo4j(databeseURI, databaseUser, databasePass);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -66,7 +66,7 @@ public class TestEJBAdmin implements TestEJBRemoteAdmin, TestEJBLocalAdmin {
 	public String test() {
 		try {
 			ServerUtilities serverUtilities = new ServerUtilities();
-			return serverUtilities.getDatabaseUri();
+			return serverUtilities.getDatabaseCoreUri();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

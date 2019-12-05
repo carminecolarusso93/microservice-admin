@@ -34,9 +34,9 @@ public class TrafficMonitoringService implements TrafficMonitoringServiceLocal, 
 	public TrafficMonitoringService() {
 		try {
 			ServerUtilities serverUtilities = new ServerUtilities();
-			this.databeseURI = serverUtilities.getDatabaseUri();
-			this.databaseUser = serverUtilities.getDatabaseUser();
-			this.databasePass = serverUtilities.getDatabasePass();
+			this.databeseURI = serverUtilities.getDatabaseCoreUri();
+			this.databaseUser = serverUtilities.getDatabaseCoreUser();
+			this.databasePass = serverUtilities.getDatabaseCorePass();
 			database = new DriverDatabaseNeo4j(databeseURI, databaseUser, databasePass);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

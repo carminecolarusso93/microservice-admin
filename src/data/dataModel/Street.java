@@ -42,7 +42,7 @@ public class Street {
 	 * @param osmidEdges        List of OSM nodes crossed and incorporated in the
 	 *                          street.
 	 * @param ref               Describes if the street has an exit with a specific number assigned to it.
-	 * @param service           Describe if some services such as bus rides are
+	 * @param transportService  Describe if some services such as bus rides are
 	 *                          active.
 	 * @param tunnel            Describes if it is present a tunnel.
 	 * @param width             Width of street in meters.
@@ -105,7 +105,7 @@ public class Street {
 	 *                          street.
 	 * @param ref               Describes if the exit has a specific number assigned
 	 *                          to it.
-	 * @param service           Describe if some services such as bus rides are
+	 * @param transportService  Describe if some services such as bus rides are
 	 *                          active.
 	 * @param tunnel            Describes if it is present a tunnel.
 	 * @param width             Width of street in meters.
