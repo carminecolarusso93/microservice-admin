@@ -17,7 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import data.dataModel.*;
-import application.trafficMonitoringService.TrafficMonitoringServiceLocal;
 
 
 @RequestScoped
@@ -30,30 +29,12 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 	// "java:global/SmartCityUniversityChallenge/SCUChallenge-application/DatabaseManagementService!databaseManagement.DatabaseManagementServiceLocal")
 	@EJB
 	DatabaseManagementServiceLocal database;
-	private TrafficMonitoringServiceLocal trafficMonitoringService;
 
-	public static final String DEFAULT_URI = "bolt://localhost:7687";
-	public static final String DEFAULT_USERNAME = "neo4j";
-	public static final String DEFAULT_PASSWORD = "assd";
 
 	@Override
 	public Response test(boolean ejb) {
-		String test;
-		try {
-			if (ejb){
-				test = "EJB not injected";
-				if (trafficMonitoringService != null) {
-					test = trafficMonitoringService.test();
-				}
-			} else {
-				test = "Test-string";
-			}
-			return ResponseBuilder.createOkResponse(test);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.serverError().build();
-		}
-
+		String test = "Test-string";
+		return ResponseBuilder.createOkResponse(test);
 	}
 
 	@Override
@@ -172,54 +153,64 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 	}
 
 	@Override
-	public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude,
-			double destinationLatitude, String type) {
-		Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
-		Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
-
-		long osmidS = database.getNearestIntersection(source).getOsmid();
-		long osmidD = database.getNearestIntersection(destination).getOsmid();
-
-		if (osmidS != 0 && osmidD != 0) {
-			if (type.equals("Coordinate")) {
-				ArrayList<Coordinate> coords = trafficMonitoringService.shortestPathCoordinate(osmidS, osmidD);
-				return ResponseBuilder.createOkResponse(coords);
-			} else if (type.equals("Intersection")) {
-				ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
-				ArrayList<Intersection> inters = new ArrayList<>();
-				for (Long l : osmids) {
-					inters.add(trafficMonitoringService.getIntersection(l));
-				}
-				return ResponseBuilder.createOkResponse(inters);
-			}
-		}
-		return null;
+	public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude, double destinationLatitude, String type) {
+		return Response.ok().entity("not implemented").build();
 	}
 
 	@Override
-	public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude,
-			double destinationLongitude, double destinationLatitude, String type) {
-		Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
-		Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
+	public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude, double destinationLongitude, double destinationLatitude, String type) {
+		return Response.ok().entity("not implemented").build();	}
 
-		long osmidS = database.getNearestIntersection(source).getOsmid();
-		long osmidD = database.getNearestIntersection(destination).getOsmid();
+	/*
+        @Override
+        public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude,
+                double destinationLatitude, String type) {
+            Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
+            Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
 
-		if (osmidS != 0 && osmidD != 0) {
-			if (type.equals("Coordinate")) {
-				ArrayList<Coordinate> coords = trafficMonitoringService.shortestPathCoordinate(osmidS, osmidD);
-				return ResponseBuilder.createOkResponse(coords);
-			} else if (type.equals("Intersection")) {
-				ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
-				ArrayList<Intersection> inters = new ArrayList<>();
-				for (Long l : osmids) {
-					inters.add(trafficMonitoringService.getIntersection(l));
-				}
-				return ResponseBuilder.createOkResponse(inters);
-			}
-		}		return null;
-	}
+            long osmidS = database.getNearestIntersection(source).getOsmid();
+            long osmidD = database.getNearestIntersection(destination).getOsmid();
 
+            if (osmidS != 0 && osmidD != 0) {
+                if (type.equals("Coordinate")) {
+                    ArrayList<Coordinate> coords = database.shortestPathCoordinate(osmidS, osmidD);
+                    return ResponseBuilder.createOkResponse(coords);
+                } else if (type.equals("Intersection")) {
+                    ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
+                    ArrayList<Intersection> inters = new ArrayList<>();
+                    for (Long l : osmids) {
+                        inters.add(trafficMonitoringService.getIntersection(l));
+                    }
+                    return ResponseBuilder.createOkResponse(inters);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude,
+                double destinationLongitude, double destinationLatitude, String type) {
+            Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
+            Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
+
+            long osmidS = database.getNearestIntersection(source).getOsmid();
+            long osmidD = database.getNearestIntersection(destination).getOsmid();
+
+            if (osmidS != 0 && osmidD != 0) {
+                if (type.equals("Coordinate")) {
+                    ArrayList<Coordinate> coords = trafficMonitoringService.shortestPathCoordinate(osmidS, osmidD);
+                    return ResponseBuilder.createOkResponse(coords);
+                } else if (type.equals("Intersection")) {
+                    ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
+                    ArrayList<Intersection> inters = new ArrayList<>();
+                    for (Long l : osmids) {
+                        inters.add(trafficMonitoringService.getIntersection(l));
+                    }
+                    return ResponseBuilder.createOkResponse(inters);
+                }
+            }		return null;
+        }
+    */
 	@Override
 	public Response setStreetInterrupted(int id, boolean interrupted) {
 		database.setStreetInterrupted(id, interrupted);
@@ -254,4 +245,16 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 		return ResponseBuilder.createOkResponse(resp);
 	}
 
+	@Override
+	public Response criticalNodes(UriInfo info) {
+
+		String top = info.getQueryParameters().getFirst("top");
+		if (top != null && Integer.parseInt(top)>0) {
+			ArrayList<Intersection> resp = database.getTopCriticalNodes(Integer.parseInt(top));
+
+			return ResponseBuilder.createOkResponse(resp);
+		}
+
+		return Response.serverError().build();
+	}
 }

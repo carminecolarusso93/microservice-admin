@@ -224,4 +224,15 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 		// TODO Auto-generated method stub
 		return database.distanceShortestPathBus(osmidStart, osmidDest);
 	}
+
+	/**
+	 * Returns a list of top critical intersections ordered by betweenness
+	 * centrality.
+	 *
+	 * @param top is the number of critical Intersections to display.
+	 * @return an ArrayList of Intersections that identify the critical Intersections.
+	 */
+	public ArrayList<Intersection> getTopCriticalNodes(int top){
+		return database.getTopCriticalNodes(top);
+	}
 }

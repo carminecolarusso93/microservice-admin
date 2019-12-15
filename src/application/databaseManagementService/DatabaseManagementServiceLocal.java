@@ -262,7 +262,16 @@ public interface DatabaseManagementServiceLocal {
 	 * @return 
 	 */
 	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
-	
+
+	/**
+	 * Returns a list of top critical intersections ordered by betweenness
+	 * centrality.
+	 *
+	 * @param top is the number of critical Intersections to display.
+	 * @return an ArrayList of Intersections that identify the critical Intersections.
+	 */
+	public ArrayList<Intersection> getTopCriticalNodes(int top);
+
 	public Intersection getNearestIntersection(Coordinate position);
 	
 	public Intersection getNearestParking(Coordinate position);

@@ -25,6 +25,7 @@
                 <version>3.2.1</version>
                 <configuration>
                     <warSourceDirectory>WebContent</warSourceDirectory>
+                    <warName>microservice-admin</warName>
                 </configuration>
             </plugin>
         </plugins>

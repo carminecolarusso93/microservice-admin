@@ -118,4 +118,7 @@ public interface DatabaseManagementControllerApi {
 	@Path("/test")
 	public Response test(@QueryParam("ejb") boolean ejb);
 
+	@GET
+	@Path("/criticalNodes")
+	public Response criticalNodes(@Context UriInfo info);
 }
