@@ -1,12 +1,12 @@
 <server-configuration>
     <neo4j-core>
-        <bolt-ip>172.18.10.141</bolt-ip>
+        <bolt-ip>172.18.10.140</bolt-ip>
         <bolt-port>32000</bolt-port>
         <user>neo4j</user>
         <password>password</password>
     </neo4j-core>
     <neo4j-replica>
-        <bolt-ip>172.18.10.141</bolt-ip>
+        <bolt-ip>172.18.10.140</bolt-ip>
         <bolt-port>32000</bolt-port>
         <user>neo4j</user>
         <password>password</password>
