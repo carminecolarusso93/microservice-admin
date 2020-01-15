@@ -30,7 +30,7 @@ public class ServerUtilities {
 	public String getDatabaseReplicaUri() {
 		String ip = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "bolt-ip");
 		String port = ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "bolt-port");
-		return "bolt+routing://" + ip + ":" + port;
+		return "bolt://" + ip + ":" + port;
 	}
 	public String getDatabaseReplicaUser() {
 		return ConfigurationParser.readElementFromFileXml(configurationFile, "neo4j-replica", "user");
