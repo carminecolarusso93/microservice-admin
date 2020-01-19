@@ -1,12 +1,13 @@
 package application.databaseManagementService;
 
+import data.dataModel.Coordinate;
+import data.dataModel.Intersection;
+import data.dataModel.Street;
+
+import javax.ejb.Remote;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.ejb.Remote;
-
-import data.dataModel.*;
 
 /**
  * Remote Interface for the EJB that implements the administration Service of
@@ -250,15 +251,16 @@ public interface DatabaseManagementServiceRemote {
 	 * @return 
 	 */
 	public void setStreetInterrupted(int id, boolean interrupted);
-	
-	/**
-	 * Update the interrupted value of a specific street. 
-	 * @param osmidStart    	Id of the starting node of the Street.
-	 * @param osmidDest    	Id of the destination node of the Street.
-	 * @param interrupted Value to set to the interrupted property of a given street;
-	 * @return 
-	 */
-	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
+
+//TODO
+//	/**
+//	 * Update the interrupted value of a specific street.
+//	 * @param osmidStart    	Id of the starting node of the Street.
+//	 * @param osmidDest    	Id of the destination node of the Street.
+//	 * @param interrupted Value to set to the interrupted property of a given street;
+//	 * @return
+//	 */
+//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
 
 	/**
 	 * Returns a list of top critical intersections ordered by betweenness
@@ -280,5 +282,7 @@ public interface DatabaseManagementServiceRemote {
 	public ArrayList<Intersection> getAllHospitals();
 	
 	public double distanceShortestPathBus(long osmidStart, long osmidDest);
+
+	public String test();
 
 }

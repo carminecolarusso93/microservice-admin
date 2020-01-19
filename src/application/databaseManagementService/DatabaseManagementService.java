@@ -1,18 +1,19 @@
 package application.databaseManagementService;
 
+import data.dataModel.Coordinate;
+import data.dataModel.Intersection;
+import data.dataModel.Street;
+import data.databaseDriver.DriverDatabase;
+import data.databaseDriver.DriverDatabaseNeo4j;
+import util.ServerUtilities;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.Stateless;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import javax.ejb.Stateless;
-
-import data.databaseDriver.*;
-import data.dataModel.*;
-import util.ServerUtilities;
 
 /**
  * Session Bean implementation class DatabaseManagementService.
@@ -75,9 +76,9 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	
 	@Override
 	public Street addStreet(ArrayList<Coordinate>coordinates, int id, String access, String area, String bridge, long osmidStart,
-			long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double length,
-			String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
-			String tunnel, String width, int origId, double weight,double flow,double averageTravelTime, boolean interrupted) {
+                            long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double length,
+                            String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
+                            String tunnel, String width, int origId, double weight, double flow, double averageTravelTime, boolean interrupted) {
 		Street s = database.addStreet(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
 				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId, weight,flow,averageTravelTime,interrupted);
 		database.updateBetweenness();
@@ -189,11 +190,11 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	public void setStreetInterrupted(int id, boolean interrupted) {
 		database.setStreetInterrupted(id, interrupted);		
 	}
-
-	@Override
-	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted) {
-		return database.setStreetInterrupted(osmidStart, osmidDest, interrupted);
-	}
+//
+//	@Override
+//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted) {
+//		return database.setStreetInterrupted(osmidStart, osmidDest, interrupted);
+//	}
 
 	public Intersection getNearestIntersection(Coordinate position) {
 		return database.getNearestIntersection(position);
@@ -223,6 +224,10 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	public double distanceShortestPathBus(long osmidStart, long osmidDest) {
 		// TODO Auto-generated method stub
 		return database.distanceShortestPathBus(osmidStart, osmidDest);
+	}
+
+	public String test(){
+		return "Test-String-Admin";
 	}
 
 	/**

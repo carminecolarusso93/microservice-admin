@@ -1,14 +1,13 @@
 package application.databaseManagementService;
 
+import data.dataModel.Coordinate;
+import data.dataModel.Intersection;
+import data.dataModel.Street;
+
+import javax.ejb.Local;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.ejb.Local;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.Response;
-
-import data.dataModel.*;
 
 /**
  * Local Interface for the EJB that implements the administration Service of the
@@ -254,14 +253,15 @@ public interface DatabaseManagementServiceLocal {
 	 */
 	public void setStreetInterrupted(int id, boolean interrupted);
 	
-	/**
-	 * Update the interrupted value of a specific street. 
-	 * @param osmidStart    	Id of the starting node of the Street.
-	 * @param osmidDest    	Id of the destination node of the Street.
-	 * @param interrupted Value to set to the interrupted property of a given street;
-	 * @return 
-	 */
-	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
+//TODO
+//	/**
+//	 * Update the interrupted value of a specific street.
+//	 * @param osmidStart    	Id of the starting node of the Street.
+//	 * @param osmidDest    	Id of the destination node of the Street.
+//	 * @param interrupted Value to set to the interrupted property of a given street;
+//	 * @return
+//	 */
+//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
 
 	/**
 	 * Returns a list of top critical intersections ordered by betweenness
@@ -284,4 +284,5 @@ public interface DatabaseManagementServiceLocal {
 	
 	public double distanceShortestPathBus(long osmidStart, long osmidDest);
 
+    public String test();
 }
