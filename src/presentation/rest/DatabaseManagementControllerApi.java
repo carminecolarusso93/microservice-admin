@@ -96,7 +96,7 @@ public interface DatabaseManagementControllerApi {
                                                   @DefaultValue("Coordinate") @QueryParam("type") String type);
 	
 	@PUT
-	@Path("/streets/integrationESB/{id}")
+	@Path("/streets/interruptions/{id}")
 	public Response setStreetInterrupted(@PathParam("id") int id, @FormParam("interrupted") boolean interrupted);
 
 	@GET
