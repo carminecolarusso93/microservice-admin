@@ -345,7 +345,7 @@ public interface DriverDatabase {
 	
 	public void setStreetInterrupted(int id, boolean interrupted);
 	
-	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
+//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
 	
 	public Intersection getNearestIntersection(Coordinate position);
 	
