@@ -78,7 +78,7 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	}
 
 	public StatementResult transaction(String query) {
-		// logger.info("transaction: " + query);
+		logger.info("transaction: " + query);
 		try {
 			if (driver == null)
 				throw new DatabaseNotConnectException("Database Non Connesso");
@@ -746,7 +746,7 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 
 	@Override
 	public void setStreetInterrupted(int id, boolean interrupted) {
-		String query = "MATCH ()-[s:STREET{linkKey:" + id + "}]->() SET s.interruption= " + interrupted + " return *";
+		String query = "MATCH ()-[s:STREET{id:" + id + "}]->() SET s.interruption= " + interrupted + " return *";
 		transaction(query);
 		// TODO gestire valore di ritorno con try/catch e gestione errore
 
