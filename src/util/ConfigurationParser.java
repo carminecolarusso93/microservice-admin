@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class ConfigurationParser {
-
-    /**
+	
+	/**
      * funzione chamata da chi ha bisogno di leggere il file e che restituir� l'elemento passato come parametro
      * @param fileName il nome del file da leggere
      * @param tagName il tag in cui � tenuto l'elemento

@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * Remote Interface for the EJB that implements the administration Service of
  * the road network.
- * 
+ *
  * @author Giovanni Codianni
  * @author Carmine Colarusso
  * @author Chiara Verdone
@@ -21,7 +21,7 @@ import java.util.HashMap;
 public interface DatabaseManagementServiceRemote {
 	/**
 	 * Add an Intersection to the database with given parameters.
-	 * 
+	 *
 	 * @param coordinate  Longitude and Latitude of Intersection in Decimal Degrees
 	 *                    (DD).
 	 * @param highway     Shows the type of the intersection within the road
@@ -30,11 +30,11 @@ public interface DatabaseManagementServiceRemote {
 	 * @param ref
 	 * @return The Java representation of the Intersection.
 	 */
-	public Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum);
+	Intersection addIntersection(Coordinate coordinate, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum);
 
 	/**
 	 * Add a directional STREET relation to the database with given parameters.
-	 * 
+	 *
 	 * @param coordinates       Describes Geometry of the street.
 	 * @param id                Local id of the Street.
 	 * @param access            Describes access condition of the street.
@@ -63,101 +63,101 @@ public interface DatabaseManagementServiceRemote {
 	 * @param averageTravelTime Average travel time of street.
 	 * @return The Java representation of the Street.
 	 */
-	public Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
-                            long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
-                            double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
-                            boolean transportService, String tunnel, String width, int origId, double weight, double flow,
-                            double averageTravelTime, boolean interrupted);
+	Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge,
+					 long osmidStart, long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes,
+					 double length, String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref,
+					 boolean transportService, String tunnel, String width, int origId, double weight, double flow,
+					 double averageTravelTime, boolean interrupted);
 
 	// public Intersection setIntersection(int vertexKey, String name, float lat,
 	// float lon, float betweenness);
 
 	/**
 	 * Update the weight value of a specific street.
-	 * 
+	 *
 	 * @param id     Id of the street to update.
 	 * @param weight Weight value to be set to the Street.
 	 * @return The Java representation of the Street with update value.
 	 */
-	public Street setStreetWeight(int id, double weight);
+	Street setStreetWeight(int id, double weight);
 
 	/**
 	 * Update the Betweenness Centrality value of a specific Intersection.
-	 * 
+	 *
 	 * @param osmid       Id of the Intersection to update.
 	 * @param betweennees Betweenness value to be set to the Intersection.
 	 * @return The Java representation of the Intersection with update value.
 	 */
-	public Intersection setBetweennessIntersection(long osmid, double betweennees);
+	Intersection setBetweennessIntersection(long osmid, double betweennees);
 
 	/**
 	 * Returns the Intersection with given Id.
-	 * 
+	 *
 	 * @param osmid Id of the Intersection to find.
 	 * @return The Java representation of the searched Intersection.
 	 */
-	public Intersection getIntersection(long osmid);
+	Intersection getIntersection(long osmid);
 
 	/**
 	 * Returns the Street with given Id.
-	 * 
+	 *
 	 * @param id Id of the Street to find.
 	 * @return The Java representation of the searched Street.
 	 */
-	public Street getStreet(int id);
+	Street getStreet(int id);
 
 	/**
 	 * Returns the Street with between two different intersection identified by
 	 * given osmid.
-	 * 
+	 *
 	 * @param osmidStart Id of the starting intersection in the road network.
 	 * @param osmidDest  Id of the destination intersection in the road network.
 	 * @return The Java representation of the searched Street.
 	 */
-	public Street getStreet(long osmidStart, long osmidDest);
+	Street getStreet(long osmidStart, long osmidDest);
 
 	/**
 	 * Returns all streets starting from the Intersection with the given Id.
-	 * 
+	 *
 	 * @param osmid Id of the Intersection to find.
 	 * @return An HashMap of the street starting from the Intersection, the Key is
 	 *         the id of the Street and the Value is the Street with the
 	 *         corresponding Id.
 	 */
-	public HashMap<Integer, Street> getStreets(long osmid);
+	HashMap<Integer, Street> getStreets(long osmid);
 
 	/**
 	 * Deletes an Intersection identified by given vertexKey.
-	 * 
+	 *
 	 * @param osmid Id of the Intersection to delete.
 	 */
-	public void deleteIntersection(long osmid);
+	void deleteIntersection(long osmid);
 
 	/**
 	 * Deletes a STREET identified by given linkKey.
-	 * 
+	 *
 	 * @param id Id of the street to delete.
 	 */
-	public void deleteStreet(int id);
+	void deleteStreet(int id);
 
 	/**
 	 * Returns the flow in an Intersection adding the weights of Street coming out
 	 * of the intersection identified by given vertexKey.
-	 * 
+	 *
 	 * @param osmid Id of the intersection in the road network.
 	 * @return the flow in given Intersection.
 	 */
-	public double nodeFlow(long osmid);
+	double nodeFlow(long osmid);
 
 	/**
 	 * Returns linkKey of the street between two different intersection identified
 	 * by given vertexKeys.
-	 * 
+	 *
 	 * @param osmidStart Id of the starting intersection in the road network.
 	 * @param osmidDest  Id of the destination intersection in the road network.
 	 * @return id of street.
 	 */
-	public int getLinkKey(long osmidStart, long osmidDest);
+	int getLinkKey(long osmidStart, long osmidDest);
 
 	/**
 	 * Update the value of BetweennessCentrality of all Intersection in database
@@ -166,9 +166,9 @@ public interface DatabaseManagementServiceRemote {
 	 * For large graphs, exact centrality computation isn’t practical. The algorithm
 	 * requires at least O(nm) time for unweighted graphs, where n is the number of
 	 * nodes and m is the number of relationships.
-	 * 
+	 *
 	 */
-	public void updateBetweennesExact();
+	void updateBetweennesExact();
 
 //	/**
 //	 * Update the BetweennessCentrality's value of all Intersection in database with
@@ -177,7 +177,7 @@ public interface DatabaseManagementServiceRemote {
 //	 * For large graphs, exact centrality computation isn’t practical. The
 //	 * algorithm requires at least O(nm) time for unweighted graphs, where n is the
 //	 * number of nodes and m is the number of relationships.
-//	 * 
+//	 *
 //	 * @param osmid Intesection's osmid of which you want to know the betweenness.
 //	 * @return The calculate betweennees value.
 //	 */
@@ -192,7 +192,7 @@ public interface DatabaseManagementServiceRemote {
 	 * uniformly, at random, with defined probability of selection. The probability
 	 * is log10(N) / e^2, were N is the number of nodes in graph
 	 */
-	public void updateBetweeennessBrandesRandom();
+	void updateBetweeennessBrandesRandom();
 
 //	/**
 //	 * Update the BetweennessCentrality's value of all Intersection in database with
@@ -202,7 +202,7 @@ public interface DatabaseManagementServiceRemote {
 //	 * RA-Brandes algorithm considers only a subset of nodes. Nodes are selected
 //	 * uniformly, at random, with defined probability of selection. The probability
 //	 * is log10(N) / e^2, were N is the number of nodes in graph
-//	 * 
+//	 *
 //	 * @param osmid Intesection's osmid of which you want to know the betweenness.
 //	 * @return The calculate betweennees value.
 //	 */
@@ -216,7 +216,7 @@ public interface DatabaseManagementServiceRemote {
 	 * whose degree is higher than the mean are visited (i.e. only dense nodes are
 	 * visited).
 	 */
-	public void updateBetweeennessBrandesDegree();
+	void updateBetweeennessBrandesDegree();
 
 //	/**
 //	 * Update the BetweennessCentrality's value of all Intersection in database with
@@ -225,7 +225,7 @@ public interface DatabaseManagementServiceRemote {
 //	 * First, the mean degree of the nodes is calculated, and then only the nodes
 //	 * whose degree is higher than the mean are visited (i.e. only dense nodes are
 //	 * visited).
-//	 * 
+//	 *
 //	 * @param osmid Intesection's osmid of which you want to know the betweenness.
 //	 * @return The calculate betweennees value.
 //	 */
@@ -239,20 +239,20 @@ public interface DatabaseManagementServiceRemote {
 
 	/**
 	 * Querys the database in order to know the timestamp of last update.
-	 * 
+	 *
 	 * @return Timestamp of last update.
 	 */
-	public LocalDateTime getLastModified();
-	
+	LocalDateTime getLastModified();
+
 	/**
-	 * Update the interrupted value of a specific street. 
+	 * Update the interrupted value of a specific street.
 	 * @param id    	Id of the street to update.
 	 * @param interrupted Value to set to the interrupted property of a given street;
-	 * @return 
 	 */
-	public void setStreetInterrupted(int id, boolean interrupted);
+	void setStreetInterrupted(int id, boolean interrupted) throws Exception;
 
 //TODO
+
 //	/**
 //	 * Update the interrupted value of a specific street.
 //	 * @param osmidStart    	Id of the starting node of the Street.
@@ -269,20 +269,20 @@ public interface DatabaseManagementServiceRemote {
 	 * @param top is the number of critical Intersections to display.
 	 * @return an ArrayList of Intersections that identify the critical Intersections.
 	 */
-	public ArrayList<Intersection> getTopCriticalNodes(int top);
+	ArrayList<Intersection> getTopCriticalNodes(int top);
 
-	public Intersection getNearestIntersection(Coordinate position);
-	
-	public Intersection getNearestParking(Coordinate position);
-	
-	public Intersection getNearestHospital(Coordinate position);
-	
-	public ArrayList<Intersection> getAllParkings();
-	
-	public ArrayList<Intersection> getAllHospitals();
-	
-	public double distanceShortestPathBus(long osmidStart, long osmidDest);
+	Intersection getNearestIntersection(Coordinate position);
 
-	public String test();
+	Intersection getNearestParking(Coordinate position);
+
+	Intersection getNearestHospital(Coordinate position);
+
+	ArrayList<Intersection> getAllParkings();
+
+	ArrayList<Intersection> getAllHospitals();
+
+	double distanceShortestPathBus(long osmidStart, long osmidDest);
+
+	String test();
 
 }

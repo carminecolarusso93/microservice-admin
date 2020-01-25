@@ -10,13 +10,13 @@ import javax.ws.rs.core.Application;
 public class RestApplication extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> s = new HashSet<Class<?>>();
-		s.add(presentation.rest.DatabaseManagementController.class);
+		s.add(presentation.rest.databaseManagementController.DatabaseManagementController.class);
 		return s;
 	}
 
 	public Set<Object> getSingletons() {
 		Set<Object> s = new HashSet<Object>();
-		s.add(new presentation.rest.DatabaseManagementController());
+		s.add(new presentation.rest.databaseManagementController.DatabaseManagementController());
 		return s;
 	}
 

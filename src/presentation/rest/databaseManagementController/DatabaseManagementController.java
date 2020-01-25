@@ -1,4 +1,4 @@
-package presentation.rest;
+package presentation.rest.databaseManagementController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,18 +12,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-
-import application.databaseManagementService.DatabaseManagementServiceLocal;
+import application.databaseManagementService.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import data.dataModel.*;
+import presentation.rest.ResponseBuilder;
 
 
 @RequestScoped
 @Path("/otm-admin")
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED })
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED })
+
 public class DatabaseManagementController implements DatabaseManagementControllerApi {
 
 	// @EJB (lookup =
@@ -34,8 +35,22 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 
 	@Override
 	public Response test(boolean ejb) {
-		String test = "Test-string";
-		return ResponseBuilder.createOkResponse(test);
+		String test;
+		try {
+			if (ejb){
+				test = "EJB not injected";
+				if (database != null) {
+					test = database.test();
+				}
+			} else {
+				test = "Test-string";
+			}
+			return ResponseBuilder.createOkResponse(test);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.serverError().build();
+		}
+
 	}
 
 	@Override
@@ -144,80 +159,47 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 
 	@Override
 	public Response getStreet(int id) {
+		System.out.println("database = " + database);
 		return Response.ok().entity(database.getStreet(id)).build();
 	}
 
+	//TODO remove challenge
+	@Deprecated
 	@Override
 	public Response setStreetWeight_integrationPlants(int id, float weight) {
 		database.setStreetWeight(id, weight);
 		return Response.ok().build();
 	}
 
+	//TODO remove challenge
+	@Deprecated
 	@Override
-	public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude, double destinationLatitude, String type) {
-		return Response.ok().entity("not implemented").build();
+	public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude,
+			double destinationLatitude, String type) {
+		return Response.ok("deprecated").build();
+	}
+
+	//TODO remove challenge
+	@Deprecated
+	@Override
+	public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude,
+			double destinationLongitude, double destinationLatitude, String type) {
+		return Response.ok("deprecated").build();
 	}
 
 	@Override
-	public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude, double destinationLongitude, double destinationLatitude, String type) {
-		return Response.ok().entity("not implemented").build();	}
-
-	/*
-        @Override
-        public Response shortestPath_integrationCC(double sourceLongitude, double sourceLatitude, double destinationLongitude,
-                double destinationLatitude, String type) {
-            Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
-            Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
-
-            long osmidS = database.getNearestIntersection(source).getOsmid();
-            long osmidD = database.getNearestIntersection(destination).getOsmid();
-
-            if (osmidS != 0 && osmidD != 0) {
-                if (type.equals("Coordinate")) {
-                    ArrayList<Coordinate> coords = database.shortestPathCoordinate(osmidS, osmidD);
-                    return ResponseBuilder.createOkResponse(coords);
-                } else if (type.equals("Intersection")) {
-                    ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
-                    ArrayList<Intersection> inters = new ArrayList<>();
-                    for (Long l : osmids) {
-                        inters.add(trafficMonitoringService.getIntersection(l));
-                    }
-                    return ResponseBuilder.createOkResponse(inters);
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public Response shortestPath_integrationEzBus(double sourceLongitude, double sourceLatitude,
-                double destinationLongitude, double destinationLatitude, String type) {
-            Coordinate source = new Coordinate(sourceLongitude, sourceLatitude);
-            Coordinate destination = new Coordinate(destinationLongitude, destinationLatitude);
-
-            long osmidS = database.getNearestIntersection(source).getOsmid();
-            long osmidD = database.getNearestIntersection(destination).getOsmid();
-
-            if (osmidS != 0 && osmidD != 0) {
-                if (type.equals("Coordinate")) {
-                    ArrayList<Coordinate> coords = trafficMonitoringService.shortestPathCoordinate(osmidS, osmidD);
-                    return ResponseBuilder.createOkResponse(coords);
-                } else if (type.equals("Intersection")) {
-                    ArrayList<Long> osmids = trafficMonitoringService.shortestPath(osmidS, osmidD);
-                    ArrayList<Intersection> inters = new ArrayList<>();
-                    for (Long l : osmids) {
-                        inters.add(trafficMonitoringService.getIntersection(l));
-                    }
-                    return ResponseBuilder.createOkResponse(inters);
-                }
-            }		return null;
-        }
-    */
-	@Override
 	public Response setStreetInterrupted(int id, boolean interrupted) {
-		database.setStreetInterrupted(id, interrupted);
+		try {
+			database.setStreetInterrupted(id, interrupted);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.serverError().build();
+		}
 		return Response.ok().build();
 	}
 
+	//TODO remove challenge
+	@Deprecated
 	@Override
 	public Response getTravelLength(double sourceLongitude, double sourceLatitude, double destinationLongitude,
 			double destinationLatitude) {
@@ -234,18 +216,23 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 		return ResponseBuilder.createOkResponse(time);
 	}
 
+	//TODO remove challenge
+	@Deprecated
 	@Override
 	public Response getAllHospitals() {
 		ArrayList<Intersection> resp = database.getAllHospitals(); 
 		return ResponseBuilder.createOkResponse(resp);
 	}
 
+	//TODO remove challenge
+	@Deprecated
 	@Override
 	public Response getAllParkings() {
 		ArrayList<Intersection> resp = database.getAllParkings(); 
 		return ResponseBuilder.createOkResponse(resp);
 	}
 
+	//TODO remove unauthorized method
 	@Override
 	public Response criticalNodes(UriInfo info) {
 

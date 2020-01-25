@@ -187,7 +187,7 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 	}
 
 	@Override
-	public void setStreetInterrupted(int id, boolean interrupted) {
+	public void setStreetInterrupted(int id, boolean interrupted) throws Exception {
 		database.setStreetInterrupted(id, interrupted);		
 	}
 //
