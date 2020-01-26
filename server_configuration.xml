@@ -7,7 +7,7 @@
         <password>password</password>
     </neo4j-core>
     <neo4j-replica>
-        <bolt-ip>neo4j-neo4j-replica-service.progetto2.svc</bolt-ip>
+        <bolt-ip>neo4j-neo4j-core-0.progetto2.svc</bolt-ip>
         <bolt-port>7687</bolt-port>
         <user>neo4j</user>
         <password>password</password>
