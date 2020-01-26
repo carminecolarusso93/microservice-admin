@@ -1,10 +1,7 @@
 package data.databaseDriver;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import org.jboss.logging.Logger;
 
@@ -577,22 +574,10 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 				+ "})\r\n"
 				+ "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING', nodeQuery:'MATCH(i:Intersection) RETURN id(i) as id',\r\n"
 				+ "relationshipQuery:'MATCH(a:Intersection)-[s:STREET{interrupted:false}]->(b:Intersection) RETURN id(a) as source, id(b) as target, s.weight as weight', graph:'cypher'})"
-				+ "YIELD nodeId\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
+				+ "YIELD nodeId\r\n" + "RETURN algo.asNode(nodeId) as intersections";
 
 		Result result = databaseRead(query);
-
-		ArrayList<Long> osmids = new ArrayList<>();
-		long vertexKey;
-		while (result.hasNext()) {
-			vertexKey = result.next().get("vertexKeys").asLong();
-			osmids.add(vertexKey);
-		}
-
-		ArrayList<Intersection> shortestPath = new ArrayList<>();
-		for (Long id : osmids){
-			shortestPath.add(getIntersectionLight(id));
-		}
-		return shortestPath;
+		return extractIntersectionArrayList(result);
 	}
 
 	/**
@@ -669,25 +654,32 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 	 * CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING'})<br>
 	 * YIELD nodeId, cost <br>
 	 * RETURN algo.asNode(nodeId).osmid as vertexKeys
-	 * @return
 	 */
-	public ArrayList<Intersection> shortestPathIgnoreInterrupted(long osmidStart, long osmidDest){
+	public ArrayList<Intersection> shortestPathIgnoreInterrupted(long osmidStart, long osmidDest) {
 		String query = "MATCH (start:Intersection{osmid:" + osmidStart + "}), (end:Intersection{osmid:" + osmidDest
 				+ "})\r\n" + "CALL algo.shortestPath.stream(start, end, 'weight',{direction:'OUTGOING'})\r\n"
-				+ "YIELD nodeId, cost\r\n" + "RETURN algo.asNode(nodeId).osmid as vertexKeys";
+				+ "YIELD nodeId, cost\r\n" + "RETURN algo.asNode(nodeId) as intersections";
 
 		Result result = databaseRead(query);
+		return extractIntersectionArrayList(result);
+	}
 
-		ArrayList<Long> osmids = new ArrayList<>();
-		long vertexKey;
-		while (result.hasNext()) {
-			vertexKey = result.next().get("vertexKeys").asLong();
-			osmids.add(vertexKey);
-		}
-
+	private ArrayList<Intersection> extractIntersectionArrayList(Result result) {
 		ArrayList<Intersection> shortestPath = new ArrayList<>();
-		for (Long id : osmids){
-			shortestPath.add(getIntersectionLight(id));
+		for (Record r : result.list()) {
+			Map<String, Object> mapValues = r.get("intersections").asMap();
+			long osmid = (long) mapValues.get("osmid");
+			double betweenness = (double) mapValues.get("betweenness");
+			double latitude = (double) mapValues.get("latitude");
+			double longitude = (double) mapValues.get("longitude");
+			boolean parking = (boolean) mapValues.get("parking");
+			boolean busStop = (boolean) mapValues.get("busStop");
+			boolean hospital = (boolean) mapValues.get("hospital");
+			boolean museum = (boolean) mapValues.get("museum");
+			String highway = (String) mapValues.get("highway");
+			String ref = (String) mapValues.get("ref");
+			Intersection i = new Intersection(new Coordinate(longitude, latitude), highway, osmid, ref, betweenness, parking, hospital, busStop, museum);
+			shortestPath.add(i);
 		}
 		return shortestPath;
 	}
