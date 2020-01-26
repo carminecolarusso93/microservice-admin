@@ -829,10 +829,11 @@ public class DriverDatabaseNeo4j implements DriverDatabase {
 		String query = "MATCH ()-[s:STREET{id:" + id + "}]->() SET s.interrupted= " + interrupted + " return s.id";
 
 		Record resultRecord = databaseWrite(query).get(0);
-
+		System.out.println("resultRecord = " + resultRecord);
 		//Record r = result.single();
 
-		if (resultRecord.get("r.id").asInt() != id) {
+
+		if (resultRecord.get("s.id").asInt() != id) {
 			throw new Exception("setStreetInterrupted(" + id + ") Error");
 		}
 
