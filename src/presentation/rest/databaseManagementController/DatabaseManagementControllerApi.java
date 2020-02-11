@@ -76,49 +76,11 @@ public interface DatabaseManagementControllerApi {
 	Response getStreet(@PathParam("id") int id);
 
 	@PUT
-	@Path("/streets/event/{id}")
-	Response setStreetWeight_integrationPlants(@PathParam("id") int id, @FormParam("value") float weight);
-
-	@GET
-	@Path("/shortestPaths/integrationCC")
-	Response shortestPath_integrationCC(@QueryParam("sourceLongitude") double sourceLongitude,
-										@QueryParam("sourceLatitude") double sourceLatitude,
-										@QueryParam("destinationLongitude") double destinationLongitude,
-										@QueryParam("destinationLatitude") double destinationLatitude,
-										@DefaultValue("Coordinate") @QueryParam("type") String type);
-
-	@GET
-	@Path("/shortestPaths/integrationEzBus")
-	Response shortestPath_integrationEzBus(@QueryParam("sourceLongitude") double sourceLongitude,
-										   @QueryParam("sourceLatitude") double sourceLatitude,
-										   @QueryParam("destinationLongitude") double destinationLongitude,
-										   @QueryParam("destinationLatitude") double destinationLatitude,
-										   @DefaultValue("Coordinate") @QueryParam("type") String type);
-
-	@PUT
 	@Path("/streets/interruptions/{id}")
 	Response setStreetInterrupted(@PathParam("id") int id, @FormParam("interrupted") boolean interrupted);
-
-	@GET
-	@Path("/waitingTime")
-	Response getTravelLength(@QueryParam("sourceLongitude") double sourceLongitude,
-							 @QueryParam("sourceLatitude") double sourceLatitude,
-							 @QueryParam("destinationLongitude") double destinationLongitude,
-							 @QueryParam("destinationLatitude") double destinationLatitude);
-
-	@GET
-	@Path("/intersections/hospitals")
-	Response getAllHospitals();
-
-	@GET
-	@Path("/intersections/parkings")
-	Response getAllParkings();
 
 	@GET
 	@Path("/test")
 	Response test(@QueryParam("ejb") boolean ejb);
 
-	@GET
-	@Path("/criticalNodes")
-	Response criticalNodes(@Context UriInfo info);
 }

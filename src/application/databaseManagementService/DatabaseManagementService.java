@@ -3,8 +3,9 @@ package application.databaseManagementService;
 import data.dataModel.Coordinate;
 import data.dataModel.Intersection;
 import data.dataModel.Street;
-import data.databaseDriver.DriverDatabase;
-import data.databaseDriver.DriverDatabaseNeo4j;
+import data.databaseDriver.DAOAdmin;
+import data.databaseDriver.DAOAdminNeo4jImpl;
+import org.jboss.logging.Logger;
 import util.ServerUtilities;
 
 import javax.annotation.PostConstruct;
@@ -25,219 +26,175 @@ import java.util.HashMap;
 @Stateless
 public class DatabaseManagementService implements DatabaseManagementServiceRemote, DatabaseManagementServiceLocal {
 
-	DriverDatabase database;
-	protected String databeseURI = null;
-	protected String databaseUser = null;
-	protected String databasePass = null;
+    private final Logger logger;
+    DAOAdmin database;
+    protected String databeseURI = null;
+    protected String databaseUser = null;
+    protected String databasePass = null;
 
-	/**
-	 * Default constructor.
-	 * <p>
-	 * Instantiate a driver to access the Neo4j Graph Database for common user with default bolt uri and credentials.
-	 * @throws FileNotFoundException
-	 */
-	public DatabaseManagementService() {
-		try {
-			ServerUtilities serverUtilities = new ServerUtilities();
-			this.databeseURI = serverUtilities.getDatabaseCoreUri();
-			this.databaseUser = serverUtilities.getDatabaseCoreUser();
-			this.databasePass = serverUtilities.getDatabaseCorePass();
-			database = new DriverDatabaseNeo4j(databeseURI, databaseUser, databasePass);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     * Default constructor.
+     * <p>
+     * Instantiate a driver to access the Neo4j Graph Database for common user with default bolt uri and credentials.
+     *
+     * @throws FileNotFoundException
+     */
+    public DatabaseManagementService() {
+        logger = Logger.getLogger(DatabaseManagementService.class);
+        logger.info("DatabaseManagementService.DatabaseManagementService");
+        try {
+            ServerUtilities serverUtilities = new ServerUtilities();
+            this.databeseURI = serverUtilities.getDatabaseCoreUri();
+            this.databaseUser = serverUtilities.getDatabaseCoreUser();
+            this.databasePass = serverUtilities.getDatabaseCorePass();
+            database = new DAOAdminNeo4jImpl(databeseURI, databaseUser, databasePass);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 
-	/**
-	 * Called after the EJB construction. Open the connection to the database.
-	 */
-	@PostConstruct
-	public void connect() {
-		database.openConnection();
-	}
+    /**
+     * Called after the EJB construction. Open the connection to the database.
+     */
+    @PostConstruct
+    public void connect() {
+        logger.info("DatabaseManagementService.connect");
+        database.openConnection();
+    }
 
-	/**
-	 * Called before the EJB destruction. Close the connection to the database.
-	 */
-	@PreDestroy
-	public void preDestroy() {
-		database.closeConnection();
-	}
+    /**
+     * Called before the EJB destruction. Close the connection to the database.
+     */
+    @PreDestroy
+    public void preDestroy() {
+        logger.info("DatabaseManagementService.preDestroy");
+        database.closeConnection();
+    }
 
-	@Override
-	public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum) {
-		
-		Intersection i = database.addIntersection(c, highway, osmid, ref, parking, hospital, busStop, museum);
-//		double bet = database.updateBetweeennessBrandesDegree(osmid);
-//		i.setBeetweeness(bet);
-		return i;
-	}
-	
-	@Override
-	public Street addStreet(ArrayList<Coordinate>coordinates, int id, String access, String area, String bridge, long osmidStart,
+    @Override
+    public Intersection addIntersection(Coordinate c, String highway, long osmid, String ref, boolean parking, boolean hospital, boolean busStop, boolean museum) {
+        logger.info("DatabaseManagementService.addIntersection: c = " + c + ", highway = " + highway + 
+				", osmid = " + osmid + ", ref = " + ref + ", parking = " + parking + ", hospital = " + hospital + 
+				", busStop = " + busStop + ", museum = " + museum);
+        Intersection i = database.addIntersection(c, highway, osmid, ref, parking, hospital, busStop, museum);
+        return i;
+    }
+
+    @Override
+    public Street addStreet(ArrayList<Coordinate> coordinates, int id, String access, String area, String bridge, long osmidStart,
                             long osmidDest, String highway, String junction, int key, ArrayList<Integer> arrayLanes, double length,
                             String maxSpeed, String name, boolean oneWay, ArrayList<Long> osmidEdges, String ref, boolean transportService,
                             String tunnel, String width, int origId, double weight, double flow, double averageTravelTime, boolean interrupted) {
-		Street s = database.addStreet(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
-				arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId, weight,flow,averageTravelTime,interrupted);
-		database.updateBetweenness();
-		return s;
-	}
+        logger.info("DatabaseManagementService.addStreet: coordinates = " + coordinates + ", id = " + id + ", access = " + access + 
+				", area = " + area + ", bridge = " + bridge + ", osmidStart = " + osmidStart + ", osmidDest = " + osmidDest + 
+				", highway = " + highway + ", junction = " + junction + ", key = " + key + ", arrayLanes = " + arrayLanes + 
+				", length = " + length + ", maxSpeed = " + maxSpeed + ", name = " + name + ", oneWay = " + oneWay + 
+				", osmidEdges = " + osmidEdges + ", ref = " + ref + ", transportService = " + transportService + ", tunnel = " + tunnel + 
+				", width = " + width + ", origId = " + origId + ", weight = " + weight + ", flow = " + flow + 
+				", averageTravelTime = " + averageTravelTime + ", interrupted = " + interrupted);
+        Street s = database.addStreet(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
+                arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId, weight, flow, averageTravelTime, interrupted);
+        database.updateBetweenness();
+        return s;
+    }
 
-//	@Override
-//	public Intersection setIntersection(int vertexKey, String name, float lat, float lon, float betweenness) {
-//		return database.setIntersection(vertexKey, name, lat, lon, betweenness);
-//	}
 
-	@Override
-	public Street setStreetWeight(int id, double weight) {
-		return database.setStreetWeight(id, weight);
-	}
+    @Override
+    public Street setStreetWeight(int id, double weight) {
+		logger.info("DatabaseManagementService.setStreetWeight: id = " + id + ", weight = " + weight);
+    	return database.setStreetWeight(id, weight);
+    }
 
-	@Override
-	public Intersection setBetweennessIntersection(long osmid, double betweennees) {
-		return database.setBetweennessIntersection(osmid, betweennees);
-	}
+    @Override
+    public Intersection setBetweennessIntersection(long osmid, double betweennees) {
+		logger.info("DatabaseManagementService.setBetweennessIntersection: osmid = " + osmid + ", betweennees = " + betweennees);
+        return database.setBetweennessIntersection(osmid, betweennees);
+    }
 
-	@Override
-	public Intersection getIntersection(long osmid) {
-		return database.getIntersection(osmid);
-	}
+    @Override
+    public Intersection getIntersection(long osmid) {
+		logger.info("DatabaseManagementService.getIntersection: osmid = " + osmid);
+    	return database.getIntersection(osmid);
+    }
 
-	@Override
-	public Street getStreet(int id) {
-		return database.getStreet(id);
-	}
+    @Override
+    public Street getStreet(int id) {
+		logger.info("DatabaseManagementService.getStreet: id = " + id);
+        return database.getStreet(id);
+    }
 
-	
-	@Override
-	public HashMap<Integer, Street> getStreets(long osmid) {
-		return database.getStreets(osmid);
-	}
 
-	@Override
-	public Street getStreet(long osmidStart, long osmidDest) {
-		return database.getStreet(osmidStart, osmidDest);
-	}
-	@Override
-	public void deleteIntersection(long osmid) {
-		database.deleteIntersection(osmid);
+    @Override
+    public HashMap<Integer, Street> getStreets(long osmid) {
+		logger.info("DatabaseManagementService.getStreets: osmid = " + osmid);
+        return database.getStreets(osmid);
+    }
 
-	}
+    @Override
+    public Street getStreet(long osmidStart, long osmidDest) {
+		logger.info("DatabaseManagementService.getStreet: osmidStart = " + osmidStart + ", osmidDest = " + osmidDest);
+        return database.getStreet(osmidStart, osmidDest);
+    }
 
-	@Override
-	public void deleteStreet(int id) {
-		database.deleteStreet(id);
+    @Override
+    public void deleteIntersection(long osmid) {
+		logger.info("DatabaseManagementService.deleteIntersection: osmid = " + osmid);
+        database.deleteIntersection(osmid);
+    }
 
-	}
+    @Override
+    public void deleteStreet(int id) {
+		logger.info("DatabaseManagementService.deleteStreet: id = " + id);
+        database.deleteStreet(id);
+    }
 
-	@Override
-	public double nodeFlow(long osmid) {
-		return database.nodeFlow(osmid);
-	}
 
-	@Override
-	public int getLinkKey(long osmidStart, long osmidDest) {
-		return database.getLinkKey(osmidStart, osmidDest);
-	}
+    @Override
+    public int getLinkKey(long osmidStart, long osmidDest) {
+		logger.info("DatabaseManagementService.getLinkKey: osmidStart = " + osmidStart + ", osmidDest = " + osmidDest);
+        return database.getLinkKey(osmidStart, osmidDest);
+    }
 
-	@Override
-	public void updateBetweennesExact() {
-		database.updateBetweennesExact();
-		
-	}
+    @Override
+    public void updateBetweennesExact() {
+		logger.info("DatabaseManagementService.updateBetweennesExact");
+        database.updateBetweennesExact();
+    }
 
-//	@Override
-//	public double updateBetweennesExact(long osmid) {
-//		return database.updateBetweennesExact(osmid);
-//	}
+    @Override
+    public void updateBetweeennessBrandesRandom() {
+		logger.info("DatabaseManagementService.updateBetweeennessBrandesRandom");
+    	database.updateBetweeennessBrandesRandom();
+    }
 
-	@Override
-	public void updateBetweeennessBrandesRandom() {
-		database.updateBetweeennessBrandesRandom();
-	}
+    @Override
+    public void updateBetweeennessBrandesDegree() {
+		logger.info("DatabaseManagementService.updateBetweeennessBrandesDegree");
+        database.updateBetweeennessBrandesDegree();
+    }
 
-//	@Override
-//	public double updateBetweeennessBrandesRandom(long osmid) {
-//		return database.updateBetweeennessBrandesRandom(osmid);
-//	}
+    @Override
+    public void updateBetweenness() {
+		logger.info("DatabaseManagementService.updateBetweenness");
+        database.updateBetweenness();
+    }
 
-	@Override
-	public void updateBetweeennessBrandesDegree() {
-		database.updateBetweeennessBrandesDegree();
-		
-	}
+    @Override
+    public LocalDateTime getLastModified() {
+		logger.info("DatabaseManagementService.getLastModified");
+    	return database.getLastModified();
+    }
 
-//	@Override
-//	public double updateBetweeennessBrandesDegree(long osmid) {
-//		return database.updateBetweeennessBrandesDegree(osmid);
-//	}
+    @Override
+    public void setStreetInterrupted(int id, boolean interrupted) throws Exception {
+		logger.info("DatabaseManagementService.setStreetInterrupted: id = " + id + ", interrupted = " + interrupted);
+        database.setStreetInterrupted(id, interrupted);
+    }
 
-	
+    public String test() {
+		logger.info("DatabaseManagementService.test");
+        return "Test-String-Admin";
+    }
 
-	@Override
-	public void updateBetweenness() {
-		database.updateBetweenness();
-	}
-
-	@Override
-	public LocalDateTime getLastModified() {
-		return database.getLastModified();
-	}
-
-	@Override
-	public void setStreetInterrupted(int id, boolean interrupted) throws Exception {
-		database.setStreetInterrupted(id, interrupted);		
-	}
-//
-//	@Override
-//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted) {
-//		return database.setStreetInterrupted(osmidStart, osmidDest, interrupted);
-//	}
-
-	public Intersection getNearestIntersection(Coordinate position) {
-		return database.getNearestIntersection(position);
-	}
-
-	@Override
-	public Intersection getNearestParking(Coordinate position) {
-		return database.getNearestParking(position);
-	}
-
-	@Override
-	public Intersection getNearestHospital(Coordinate position) {
-		return database.getNearestHospital(position);
-	}
-
-	@Override
-	public ArrayList<Intersection> getAllParkings() {
-		return database.getAllParkings();
-	}
-
-	@Override
-	public ArrayList<Intersection> getAllHospitals() {
-		return database.getAllHospitals();
-	}
-
-	@Override
-	public double distanceShortestPathBus(long osmidStart, long osmidDest) {
-		// TODO Auto-generated method stub
-		return database.distanceShortestPathBus(osmidStart, osmidDest);
-	}
-
-	public String test(){
-		return "Test-String-Admin";
-	}
-
-	/**
-	 * Returns a list of top critical intersections ordered by betweenness
-	 * centrality.
-	 *
-	 * @param top is the number of critical Intersections to display.
-	 * @return an ArrayList of Intersections that identify the critical Intersections.
-	 */
-	public ArrayList<Intersection> getTopCriticalNodes(int top){
-		return database.getTopCriticalNodes(top);
-	}
 }

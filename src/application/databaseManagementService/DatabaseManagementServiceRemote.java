@@ -4,21 +4,22 @@ import data.dataModel.Coordinate;
 import data.dataModel.Intersection;
 import data.dataModel.Street;
 
-import javax.ejb.Remote;
+import javax.ejb.Local;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Remote Interface for the EJB that implements the administration Service of
- * the road network.
+ * Local Interface for the EJB that implements the administration Service of the
+ * road network.
  *
  * @author Giovanni Codianni
  * @author Carmine Colarusso
  * @author Chiara Verdone
  */
-@Remote
+@Local
 public interface DatabaseManagementServiceRemote {
+
 	/**
 	 * Add an Intersection to the database with given parameters.
 	 *
@@ -140,14 +141,6 @@ public interface DatabaseManagementServiceRemote {
 	 */
 	void deleteStreet(int id);
 
-	/**
-	 * Returns the flow in an Intersection adding the weights of Street coming out
-	 * of the intersection identified by given vertexKey.
-	 *
-	 * @param osmid Id of the intersection in the road network.
-	 * @return the flow in given Intersection.
-	 */
-	double nodeFlow(long osmid);
 
 	/**
 	 * Returns linkKey of the street between two different intersection identified
@@ -170,18 +163,6 @@ public interface DatabaseManagementServiceRemote {
 	 */
 	void updateBetweennesExact();
 
-//	/**
-//	 * Update the BetweennessCentrality's value of all Intersection in database with
-//	 * exact algorithm.
-//	 * <p>
-//	 * For large graphs, exact centrality computation isn’t practical. The
-//	 * algorithm requires at least O(nm) time for unweighted graphs, where n is the
-//	 * number of nodes and m is the number of relationships.
-//	 *
-//	 * @param osmid Intesection's osmid of which you want to know the betweenness.
-//	 * @return The calculate betweennees value.
-//	 */
-//	public double updateBetweennesExact(long osmid);
 
 	/**
 	 * Update the BetweennessCentrality's value of all Intersection in database with
@@ -194,20 +175,6 @@ public interface DatabaseManagementServiceRemote {
 	 */
 	void updateBetweeennessBrandesRandom();
 
-//	/**
-//	 * Update the BetweennessCentrality's value of all Intersection in database with
-//	 * Brandes random algorithm.
-//	 * <p>
-//	 * Rather than calculating the shortest path between every pair of nodes, the
-//	 * RA-Brandes algorithm considers only a subset of nodes. Nodes are selected
-//	 * uniformly, at random, with defined probability of selection. The probability
-//	 * is log10(N) / e^2, were N is the number of nodes in graph
-//	 *
-//	 * @param osmid Intesection's osmid of which you want to know the betweenness.
-//	 * @return The calculate betweennees value.
-//	 */
-//	public double updateBetweeennessBrandesRandom(long osmid);
-
 	/**
 	 * Update the BetweennessCentrality's value of all Intersection in database with
 	 * Brandes random algorithm.
@@ -218,18 +185,6 @@ public interface DatabaseManagementServiceRemote {
 	 */
 	void updateBetweeennessBrandesDegree();
 
-//	/**
-//	 * Update the BetweennessCentrality's value of all Intersection in database with
-//	 * Brandes random algorithm.
-//	 * <p>
-//	 * First, the mean degree of the nodes is calculated, and then only the nodes
-//	 * whose degree is higher than the mean are visited (i.e. only dense nodes are
-//	 * visited).
-//	 *
-//	 * @param osmid Intesection's osmid of which you want to know the betweenness.
-//	 * @return The calculate betweennees value.
-//	 */
-//	public double updateBetweeennessBrandesDegree(long osmid);
 
 	/**
 	 * Update the BetweennessCentrality's value of all Intersection in database with
@@ -251,38 +206,5 @@ public interface DatabaseManagementServiceRemote {
 	 */
 	void setStreetInterrupted(int id, boolean interrupted) throws Exception;
 
-//TODO
-
-//	/**
-//	 * Update the interrupted value of a specific street.
-//	 * @param osmidStart    	Id of the starting node of the Street.
-//	 * @param osmidDest    	Id of the destination node of the Street.
-//	 * @param interrupted Value to set to the interrupted property of a given street;
-//	 * @return
-//	 */
-//	public boolean setStreetInterrupted(long osmidStart, long osmidDest, boolean interrupted);
-
-	/**
-	 * Returns a list of top critical intersections ordered by betweenness
-	 * centrality.
-	 *
-	 * @param top is the number of critical Intersections to display.
-	 * @return an ArrayList of Intersections that identify the critical Intersections.
-	 */
-	ArrayList<Intersection> getTopCriticalNodes(int top);
-
-	Intersection getNearestIntersection(Coordinate position);
-
-	Intersection getNearestParking(Coordinate position);
-
-	Intersection getNearestHospital(Coordinate position);
-
-	ArrayList<Intersection> getAllParkings();
-
-	ArrayList<Intersection> getAllHospitals();
-
-	double distanceShortestPathBus(long osmidStart, long osmidDest);
-
 	String test();
-
 }

@@ -1,11 +1,7 @@
 package util;
 
-import data.dataModel.Intersection;
-import data.databaseDriver.DriverDatabaseNeo4j;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import data.databaseDriver.DAOAdmin;
+import data.databaseDriver.DAOAdminNeo4jImpl;
 
 public class Test {
 
@@ -24,11 +20,12 @@ public class Test {
         }
         String ip = ConfigurationParser.readElementFromFileXml(f, "neo4j-core", "bolt-ip");
         String port = ConfigurationParser.readElementFromFileXml(f, "neo4j-core", "bolt-port");
+
         System.out.println( "bolt://" + ip + ":" + port);
         */
 //
-//        DriverDatabaseNeo4j driverDatabaseNeo4j = new DriverDatabaseNeo4j("bolt://localhost:7687", "neo4j", "password");
-//        driverDatabaseNeo4j.openConnection();
+        DAOAdmin driverDatabaseNeo4j = new DAOAdminNeo4jImpl("bolt://172.18.10.145:32000", "neo4j", "password");
+        driverDatabaseNeo4j.openConnection();
 //
 ////        driverDatabaseNeo4j.setStreetWeight(2,10);
 ////       ArrayList<Intersection> topNodes= driverDatabaseNeo4j.getTopCriticalNodes(10);
@@ -36,10 +33,9 @@ public class Test {
 ////
 ////       driverDatabaseNeo4j.setStreetInterrupted(1, true);
 //        driverDatabaseNeo4j.getStreetGeometry(89374, 117971);
-//
-//
-//
-//       driverDatabaseNeo4j.closeConnection();
+
+//        driverDatabaseNeo4j.shortestPath(1, 1000);
+       driverDatabaseNeo4j.closeConnection();
     }
 
 
