@@ -54,7 +54,6 @@ public class DatabaseManagementController implements DatabaseManagementControlle
             e.printStackTrace();
             return Response.serverError().build();
         }
-
     }
 
     @Override
@@ -97,28 +96,28 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 
     @Override
     public Response setStreetWeight(int id, double weight) {
-		logger.info("DatabaseManagementController.setStreetWeight: id = " + id + ", weight = " + weight);
+        logger.info("DatabaseManagementController.setStreetWeight: id = " + id + ", weight = " + weight);
         Street s = database.setStreetWeight(id, weight);
         return Response.ok().entity(s).build();
     }
 
     @Override
     public Response setBetweennessIntersection(long osmid, double betweennees) {
-		logger.info("DatabaseManagementController.setBetweennessIntersection: osmid = " + osmid + ", betweennees = " + betweennees);
+        logger.info("DatabaseManagementController.setBetweennessIntersection: osmid = " + osmid + ", betweennees = " + betweennees);
         Intersection i = database.setBetweennessIntersection(osmid, betweennees);
         return Response.ok().entity(i).build();
     }
 
     @Override
     public Response getIntersection(long osmid) {
-		logger.info("DatabaseManagementController.getIntersection: osmid = " + osmid);
+        logger.info("DatabaseManagementController.getIntersection: osmid = " + osmid);
         Intersection i = database.getIntersection(osmid);
         return Response.ok().entity(i).build();
     }
 
     @Override
     public Response getStreetProperties(UriInfo info) {
-		logger.info("DatabaseManagementController.getStreetProperties: info = " + info);
+        logger.info("DatabaseManagementController.getStreetProperties: info = " + info);
         String id = info.getQueryParameters().getFirst("id");
         String osmidStart = info.getQueryParameters().getFirst("osmidStart");
         String osmidDest = info.getQueryParameters().getFirst("osmidDest");
@@ -136,57 +135,57 @@ public class DatabaseManagementController implements DatabaseManagementControlle
 
     @Override
     public Response getStreets(long osmid) {
-		logger.info("DatabaseManagementController.getStreets: osmid = " + osmid);
+        logger.info("DatabaseManagementController.getStreets: osmid = " + osmid);
         HashMap<Integer, Street> s = database.getStreets(osmid);
         return Response.ok().entity(s).build();
     }
 
     @Override
     public Response deleteIntersection(long osmid) {
-		logger.info("DatabaseManagementController.deleteIntersection: osmid = " + osmid);
+        logger.info("DatabaseManagementController.deleteIntersection: osmid = " + osmid);
         database.deleteIntersection(osmid);
         return Response.ok().build();
     }
 
     @Override
     public Response deleteStreet(int id) {
-		logger.info("DatabaseManagementController.deleteStreet: id = " + id);
+        logger.info("DatabaseManagementController.deleteStreet: id = " + id);
         database.deleteStreet(id);
         return Response.ok().build();
     }
 
-    @Override
-    public Response updateBetweennes(UriInfo info) {
-		logger.info("DatabaseManagementController.updateBetweennes: info = " + info);
-        String alg = info.getQueryParameters().getFirst("alg");
-        switch (alg) {
-            case "exact":
-                database.updateBetweennesExact();
-                return Response.ok().build();
-            case "brandes-random":
-                database.updateBetweeennessBrandesRandom();
-                return Response.ok().build();
-            case "brandes-degree":
-                database.updateBetweeennessBrandesDegree();
-                return Response.ok().build();
-            case "default":
-                database.updateBetweenness();
-                return Response.ok().build();
-            default:
-                return Response.serverError().build();
-        }
-    }
+//    @Override
+//    public Response updateBetweennes(UriInfo info) {
+//        logger.info("DatabaseManagementController.updateBetweennes: info = " + info);
+//        String alg = info.getQueryParameters().getFirst("alg");
+//        switch (alg) {
+//            case "exact":
+//                database.updateBetweennesExact();
+//                return Response.ok().build();
+//            case "brandes-random":
+//                database.updateBetweeennessBrandesRandom();
+//                return Response.ok().build();
+//            case "brandes-degree":
+//                database.updateBetweeennessBrandesDegree();
+//                return Response.ok().build();
+//            case "default":
+//                database.updateBetweenness();
+//                return Response.ok().build();
+//            default:
+//                return Response.serverError().build();
+//        }
+//    }
 
     @Override
     public Response getStreet(int id) {
-		logger.info("DatabaseManagementController.getStreet: id = " + id);
-    	return Response.ok().entity(database.getStreet(id)).build();
+        logger.info("DatabaseManagementController.getStreet: id = " + id);
+        return Response.ok().entity(database.getStreet(id)).build();
     }
 
 
     @Override
     public Response setStreetInterrupted(int id, boolean interrupted) {
-		logger.info("DatabaseManagementController.setStreetInterrupted: id = " + id + ", interrupted = " + interrupted);
+        logger.info("DatabaseManagementController.setStreetInterrupted: id = " + id + ", interrupted = " + interrupted);
         try {
             database.setStreetInterrupted(id, interrupted);
         } catch (Exception e) {

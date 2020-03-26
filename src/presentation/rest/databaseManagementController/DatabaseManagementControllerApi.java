@@ -66,10 +66,10 @@ public interface DatabaseManagementControllerApi {
 	@DELETE
 	@Path("/streets/{id}")
 	Response deleteStreet(@PathParam("id") int id);
-
-	@PUT
-	@Path("/criticalNodes")
-	Response updateBetweennes(@Context UriInfo info);
+//
+//	@PUT
+//	@Path("/criticalNodes")
+//	Response updateBetweennes(@Context UriInfo info);
 
 	@GET
 	@Path("/streets/{id}")

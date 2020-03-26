@@ -95,7 +95,7 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 				", averageTravelTime = " + averageTravelTime + ", interrupted = " + interrupted);
         Street s = database.addStreet(coordinates, id, access, area, bridge, osmidStart, osmidDest, highway, junction, key,
                 arrayLanes, length, maxSpeed, name, oneWay, osmidEdges, ref, transportService, tunnel, width, origId, weight, flow, averageTravelTime, interrupted);
-        database.updateBetweenness();
+//        database.updateBetweenness();
         return s;
     }
 

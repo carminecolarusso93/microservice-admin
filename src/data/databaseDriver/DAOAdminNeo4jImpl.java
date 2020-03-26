@@ -561,8 +561,10 @@ public class DAOAdminNeo4jImpl implements DAOAdmin {
     @Override
     public void setLastModified() {
         logger.info("DAOAdminNeo4jImpl.setLastModified");
-        databaseWrite(
-                "MATCH (a:Control)  SET a.timestamp = localdatetime() WITH a CALL streams.publish('test', a.timestamp) Return *");
+        //todo deploy kafka
+//        String query = "MATCH (a:Control)  SET a.timestamp = localdatetime() WITH a CALL streams.publish('test', a.timestamp) Return *";
+        String query = "MATCH (a:Control)  SET a.timestamp = localdatetime()";
+        databaseWrite(query);
     }
 
 
@@ -627,5 +629,21 @@ public class DAOAdminNeo4jImpl implements DAOAdmin {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public ArrayList<Long> getIntersectionOsmids() {
+        String query = "MATCH (a:Intersection) RETURN a.osmid as osmid";
+        Result result = databaseRead(query);
+        ArrayList<Long> osmids = new ArrayList<>();
+        Record r;
+        long osmid;
+
+        while (result.hasNext()) {
+            r = result.next();
+            osmid = r.get("osmid").asLong();
+
+            osmids.add(osmid);
+        }
+        return osmids;
     }
 }
