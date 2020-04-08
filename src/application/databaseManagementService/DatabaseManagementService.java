@@ -28,7 +28,8 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
 
     private final Logger logger;
     DAOAdmin database;
-    protected String databeseURI = null;
+    protected String databeseWriteURI = null;
+    protected String databeseReadURI = null;
     protected String databaseUser = null;
     protected String databasePass = null;
 
@@ -44,10 +45,11 @@ public class DatabaseManagementService implements DatabaseManagementServiceRemot
         logger.info("DatabaseManagementService.DatabaseManagementService");
         try {
             ServerUtilities serverUtilities = new ServerUtilities();
-            this.databeseURI = serverUtilities.getDatabaseCoreUri();
+            this.databeseWriteURI = serverUtilities.getDatabaseCoreUri();
+            this.databeseReadURI = serverUtilities.getDatabaseReplicaUri();
             this.databaseUser = serverUtilities.getDatabaseCoreUser();
             this.databasePass = serverUtilities.getDatabaseCorePass();
-            database = new DAOAdminNeo4jImpl(databeseURI, databaseUser, databasePass);
+            database = new DAOAdminNeo4jImpl(databeseWriteURI, databeseReadURI, databaseUser, databasePass);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

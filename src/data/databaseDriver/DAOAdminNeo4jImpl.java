@@ -12,25 +12,29 @@ import data.dataModel.*;
 
 public class DAOAdminNeo4jImpl implements DAOAdmin {
 
-    private String uri, user, password;
-    private Driver driver;
+    private String uriWrite,uriRead, user, password;
+    private Driver driverRead;
+    private Driver driverWrite;
     private Logger logger;
     private SessionConfig readSessionConfig;
     private SessionConfig writeSessionConfig;
 
 
     /**
-     * @param uri      is the bolt address to access neo4j database.
+     * @param uriWrite      is the bolt address to write access neo4j database.
+     * @param uriRead      is the bolt address to read access neo4j database.
      * @param user     is the username to access neo4j database.
      * @param password is the password to access neo4j database.
      */
-    public DAOAdminNeo4jImpl(String uri, String user, String password) {
+    public DAOAdminNeo4jImpl(String uriWrite, String uriRead, String user, String password) {
         logger = Logger.getLogger(DAOAdminNeo4jImpl.class);
-        logger.info("DAOAdminNeo4jImpl.DAOAdminNeo4jImpl: uri = " + uri + ", user = " + user + ", password = " + password);
-        this.uri = uri;
+        logger.info("DAOAdminNeo4jImpl.DAOAdminNeo4jImpl: uri = " + uriRead + ", user = " + user + ", password = " + password);
+        this.uriWrite = uriWrite;
+        this.uriRead = uriRead;
         this.user = user;
         this.password = password;
-        this.driver = null;
+        this.driverRead = null;
+        this.driverWrite = null;
         this.readSessionConfig = SessionConfig.builder()
                 .withDefaultAccessMode(AccessMode.READ)
                 .build();
@@ -45,20 +49,25 @@ public class DAOAdminNeo4jImpl implements DAOAdmin {
     @Override
     public void openConnection() {
         logger.info("DAOAdminNeo4jImpl.openConnection");
-        logger.info("Opening Connection to DataBase URI[" + uri + "]");
-        this.driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password));
+        logger.info("Opening Connection to DataBase URI-read[" + uriRead + "]");
+        logger.info("Opening Connection to DataBase URI-write[" + uriWrite + "]");
+        this.driverRead = GraphDatabase.driver(uriRead, AuthTokens.basic(user, password));
+        this.driverWrite = GraphDatabase.driver(uriWrite, AuthTokens.basic(user, password));
     }
 
     @Override
     public void closeConnection() {
         logger.info("DAOAdminNeo4jImpl.closeConnection");
-        logger.info("Closing Connection to DataBase URI[" + uri + "]");
+        logger.info("Closing Connection to DataBase URI-read[" + uriRead + "]");
+        logger.info("Closing Connection to DataBase URI-write[" + uriWrite + "]");
         // Logica bloccante
         // driver.close();
 
         // Logica non bloccante
-        driver.closeAsync();
-        driver = null;
+        driverRead.closeAsync();
+        driverWrite.closeAsync();
+        driverRead = null;
+        driverWrite = null;
     }
 
     // INTERROGAZIONE
@@ -67,9 +76,9 @@ public class DAOAdminNeo4jImpl implements DAOAdmin {
     public Result databaseRead(String query) {
         logger.info("DAOAdminNeo4jImpl.databaseRead:query = " + query);
         try {
-            if (driver == null)
+            if (driverRead == null)
                 throw new DatabaseNotConnectException("Database Non Connesso");
-            Session session = driver.session(readSessionConfig);
+            Session session = driverRead.session(readSessionConfig);
             return session.run(query);
         } catch (DatabaseNotConnectException e) {
             e.printStackTrace();
@@ -82,10 +91,10 @@ public class DAOAdminNeo4jImpl implements DAOAdmin {
         logger.info("DAOAdminNeo4jImpl.databaseRead:query = " + query);
 
         try {
-            if (driver == null)
+            if (driverWrite == null)
                 throw new DatabaseNotConnectException("Database Non Connesso");
 
-            Session session = driver.session(writeSessionConfig);
+            Session session = driverWrite.session(writeSessionConfig);
             Transaction tx = session.beginTransaction();
 
             List<Record> result = tx.run(query).list();
