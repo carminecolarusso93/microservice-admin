@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server-configuration>
     <neo4j-core>
-        <bolt-ip>neo4j-neo4j-core-0.progetto2.svc</bolt-ip>
+        <bolt-ip>neo4j-neo4j-core-0.otm.svc</bolt-ip>
         <bolt-port>7687</bolt-port>
         <user>neo4j</user>
         <password>password</password>
     </neo4j-core>
     <neo4j-replica>
-        <bolt-ip>neo4j-neo4j-replica-service.progetto2.svc</bolt-ip>
+        <bolt-ip>neo4j-neo4j-replica-service.otm.svc</bolt-ip>
         <bolt-port>7687</bolt-port>
         <user>neo4j</user>
         <password>password</password>
