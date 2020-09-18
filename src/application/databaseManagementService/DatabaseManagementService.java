@@ -19,6 +19,7 @@ import java.util.HashMap;
 /**
  * Session Bean implementation class DatabaseManagementService.
  * <p>
+ *     
  * Encapsulates the driver to access the traffic management database with
  * administration role.
  */
